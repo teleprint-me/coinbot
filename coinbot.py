@@ -9,6 +9,20 @@ class ValueAveraging:
         self.growth_rate = 1 + (self.interest_rate / self.frequency)
         self.records = []
 
+    @staticmethod
+    def calculate_trade_amount(
+        principal, annual_rate, compounding_frequency, time_period
+    ):
+        # Calculate the target amount using the compound interest formula
+        target_amount = principal * (1 + annual_rate / compounding_frequency) ** (
+            compounding_frequency * time_period
+        )
+
+        # Calculate the trade amount as the difference between the target amount and the current principal
+        trade_amount = target_amount - principal
+
+        return target_amount, trade_amount
+
     def initialize_first_record(self, market_price, datetime):
         current_target = self.principal_amount  # Initial principal amount
         order_size = self.principal_amount / market_price
