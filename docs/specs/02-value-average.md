@@ -18,76 +18,71 @@ evaluated expressions as its set of results.
 
 ## Algorithm
 
-We define the sequence of steps, as well as the expressions used, to evaluate
-each value as the following:
-
-1.  Define Principal Amount
+1.  **Define Principal Amount**
 
         Principal Amount = Constant Float Value
 
-2.  Define Interest Rate
+2.  **Define Annual Interest Rate**
 
-        Interest Rate = Constant Float Value
+        Annual Interest Rate = Constant Float Value
 
-3.  Define Frequency
+3.  **Define Frequency**
 
         Frequency = One of 365 (Daily), 52 (Weekly), 12 (Monthly)
 
-4.  Define Growth Rate
+4.  **Define Time Period**
 
-    a. Calculate Growth Rate based on Interest Rate and Frequency.
+        Time Period = 1 / Frequency  # Time in years for one interval
 
-        Growth Rate = 1 + (Interest Rate / Frequency)
-
-5.  Get Datetime
+5.  **Get Datetime**
 
         Datetime = Current Datetime
 
-6.  Get Market Price
+6.  **Get Market Price**
 
         Market Price = Current Market Price
 
-7.  Get Interval
+7.  **Get Interval**
 
         IF no previous records
             THEN Interval = 1
         Increment Interval with each record insertion
             Interval = Previous Interval + 1
 
-8.  Get Current Target
+8.  **Get Current Target**
 
         IF no previous records
             THEN Current Target = Principal Amount
         IF Previous Current Target
-            THEN Current Target = Principal Amount * Interval * pow(Growth Rate, Interval)
+            THEN Current Target = Principal Amount * (1 + Annual Interest Rate / Frequency) ** (Frequency * Time Period * Interval)
 
-9.  Get Previous Total Order Size
+9.  **Get Previous Total Order Size**
 
         IF no previous records
             THEN set Previous Total Order Size to 0
         OTHERWISE, set Previous Total Order Size to sum of Order Size column, excluding current record
             Previous Total Order Size = sum(Order Size) for all previous records
 
-10. Get Order Size
+10. **Get Order Size**
 
-    Order Size = Trade Amount / Market Price
+        Order Size = Trade Amount / Market Price
 
-11. Get Total Order Size
+11. **Get Total Order Size**
 
         Total Order Size = Order Size + Previous Total Order Size
 
-12. Get Current Value
+12. **Get Current Value**
 
         Current Value = Market Price * Previous Total Order Size
 
-13. Get Previous Total Trade Amount
+13. **Get Previous Total Trade Amount**
 
         IF no previous records
                 THEN Previous Total Trade Amount = 0
         OTHERWISE, Previous Total Trade Amount is sum of Trade Amount column excluding current record
                 Previous Total Trade Amount = sum(Trade Amount) for all previous records
 
-14. Get Trade Amount
+14. **Get Trade Amount**
 
         Trade Amount = Current Target - Current Value
 
@@ -96,10 +91,9 @@ each value as the following:
         IF Trade Amount < 0
             THEN sell Trade Amount
 
-NOTE: Buying and Selling should be determined by a `MIN_TRADE_AMOUNT` to avoid
-erroneous record entries.
+        NOTE: Buying and Selling should be determined by a `MIN_TRADE_AMOUNT` to avoid erroneous record entries.
 
-15. Get Total Trade Amount
+15. **Get Total Trade Amount**
 
         Total Trade Amount = Trade Amount + Previous Total Trade Amount
 
