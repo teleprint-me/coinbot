@@ -46,14 +46,14 @@ def round_to_base(x, base=0.01):
 principal_amount = 10.00  # constant float value in USD
 annual_interest_rate = 0.10  # 10% annual gain as a decimal
 frequency = 12  # monthly
-growth_rate = 1 + (annual_interest_rate / frequency)  # Calculate Growth Rate
+time_period = 1 + (annual_interest_rate / frequency)  # Calculate Growth Rate
 
-# Initialize tracking variables
+# Initialize tracking variables again for the simplified formula
 previous_total_order_size = 0.0
 previous_total_trade_amount = 0.0
 interval = 1
 
-# Initialize the DataFrame again for the updated calculations
+# Initialize the DataFrame again for the new calculations
 df["Current Target"] = np.nan
 df["Current Value"] = np.nan
 df["Trade Amount"] = np.nan
@@ -62,44 +62,39 @@ df["Order Size"] = np.nan
 df["Total Order Size"] = np.nan
 df["Interval"] = np.nan
 
-# Loop through each record to recalculate values
+# Loop through each record to recalculate values with the simplified formula
 for index, row in df.iterrows():
     # Get Interval
     df.at[index, "Interval"] = interval
 
-    # Get Current Target
+    # Get Current Target using the simplified formula
     if interval == 1:
         current_target = principal_amount
     else:
-        current_target = principal_amount * interval * (growth_rate**interval)
+        current_target = (principal_amount * interval) * (
+            1 + annual_interest_rate / frequency
+        ) ** (frequency * time_period)
+
     current_target = round_to_base(current_target, 0.01)  # rounding to the nearest cent
     df.at[index, "Current Target"] = current_target
 
-    # Get Current Value
+    # Other calculations remain the same as in the previous code
     current_value = round_to_base(
         row["Market Price"] * previous_total_order_size, 0.01
     )  # rounding to the nearest cent
     df.at[index, "Current Value"] = current_value
-
-    # Get Trade Amount
     trade_amount = round_to_base(
         current_target - current_value, 0.01
     )  # rounding to the nearest cent
     df.at[index, "Trade Amount"] = trade_amount
-
-    # Get Order Size
     order_size = round_to_base(
         trade_amount / row["Market Price"], 0.00000001
     )  # rounding to the nearest satoshi
     df.at[index, "Order Size"] = order_size
-
-    # Get Total Order Size
     total_order_size = round_to_base(
         previous_total_order_size + order_size, 0.00000001
     )  # rounding to the nearest satoshi
     df.at[index, "Total Order Size"] = total_order_size
-
-    # Get Total Trade Amount
     total_trade_amount = round_to_base(
         previous_total_trade_amount + trade_amount, 0.01
     )  # rounding to the nearest cent
