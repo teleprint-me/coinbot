@@ -24,12 +24,12 @@ class ValueAveraging:
             Decimal(f"1e-{decimal_places}"), rounding=ROUND_HALF_EVEN
         )
 
-    def calculate_trade_amount(self, target_amount, current_value):
+    def calculate_trade_amount(self, target_amount: float, current_value: float):
         # Calculate the trade amount as the difference between the target amount and the current value
         current_trade_amount = target_amount - current_value
         return current_trade_amount
 
-    def get_target_amount(self, interval):
+    def get_target_amount(self, interval: int):
         rate_per_compounding_period = self.interest_rate / self.frequency
 
         # Calculate the Current Target amount using the adapted Value Averaging formula
@@ -41,7 +41,7 @@ class ValueAveraging:
         return current_target_amount
 
     def initialize_first_record(
-        self, market_price, datetime, precision: Optional[int] = 2
+        self, market_price: float, datetime: str, precision: Optional[int] = 2
     ):
         market_price = self.round_decimal(market_price, precision)
         current_target = self.principal_amount  # Initial principal amount
