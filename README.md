@@ -1,9 +1,12 @@
-Disclaimer:
+# CoinBot
 
-**I am a programmer** and _I am **NOT** an accredited financial expert_. You
-should seek out an accredited financial expert for making serious investment
-decisions. Do NOT take investment advice from random internet strangers and
-always do your own research.
+CoinBot: Automated Crypto Trading with Compound Interest Strategy
+
+## Disclaimer
+
+    I am a programmer and NOT an accredited financial expert.
+    For important investment decisions, consult a certified financial professional.
+    Do NOT rely on investment advice from anonymous sources online; always conduct thorough research.
 
 📝 THIS SOFTWARE IS UNDER ACTIVE DEVELOPMENT AND IS SUBJECT TO CHANGE
 
@@ -11,14 +14,19 @@ always do your own research.
 
 🚨 ALWAYS AUDIT THE OUTPUT!
 
-# CoinBot
+## About CoinBot
 
-CoinBot: Automated Crypto Trading with Compound Interest Strategy
+CoinBot is a project aimed at providing automated crypto trading with a compound
+interest strategy.
+
+## Usage
+
+...
 
 ## License
 
     CoinBot: Automated Crypto Trading with Compound Interest Strategy
-    Copyright (C) 2023  Austin Berrio
+    Copyright (C) 2023 Austin Berrio
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
@@ -27,8 +35,8 @@ CoinBot: Automated Crypto Trading with Compound Interest Strategy
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU Affero General Public License for more details.
 
     You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    along with this program. If not, see <https://www.gnu.org/licenses/>.
