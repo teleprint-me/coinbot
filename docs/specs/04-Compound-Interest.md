@@ -14,34 +14,69 @@ Where:
 - `n` is the number of times that interest is compounded per unit `t`
 - `t` is the time the money is invested/borrowed for, in years
 
+## Compound Interest Formula in Value Averaging
+
+The compound interest formula serves as the base for calculating the target
+amount in Value Averaging trading strategies. The general compound interest
+formula is:
+
+```
+A = P(1 + (r/n))^(nt)
+```
+
+However, in the context of Value Averaging, there may be different adaptations
+of this formula to meet specific trading needs.
+
+### Formula Variations
+
+1. **Original Formula**: This formula incorporates the concept of "Interval,"
+   which is unique to the Value Averaging strategy. The "Interval" signifies the
+   time step in the investment sequence.
+
+   ```
+   Current Target = Principal Amount * Interval * (1 + (Annual Interest Rate / Frequency))^Interval
+   ```
+
+2. **Modified Formula with Compound Interest**: This formula aims to strictly
+   follow the compound interest model for exponential growth.
+
+   ```
+   Current Target = Principal Amount * (1 + (Annual Interest Rate / Frequency))^(Frequency * Time Period * Interval)
+   ```
+
+3. **Simplified Formula**: This formula is a blend of the two, combining both
+   linear and compound growth.
+
+   ```
+   Current Target = Principal Amount * Interval * (1 + (Annual Interest Rate / Frequency))^(Frequency * Time Period)
+   ```
+
 ### Calculating Trade Amount
 
 The trade amount is calculated using the formula:
 
 ```
-Trade Amount = A - Current Value
+Trade Amount = Current Target - Current Value
 ```
+
+This gives the amount you need to buy or sell to reach your target investment
+amount.
 
 ## Formula Parameters
 
-1. **Principal Amount (`P`)**: The amount of asset you currently have in the
-   trading pair (BTC or ETH).
-
-2. **Annual Interest Rate (`r`)**: This represents the average percentage gain
-   you aim to achieve through trading.
-
-3. **Compounding Frequency (`n`)**: This depends on how often you plan to
-   execute trades. For example, if you plan to trade once a day, `n` would
-   be 365.
-
-4. **Time Period (`t`)**: The time the investment/borrowing is held, usually in
-   years. You can adjust it to match your trading strategy.
+1. **Principal Amount (`P`)**: The initial investment amount, or the amount of
+   asset you aim to invest.
+2. **Annual Interest Rate (`r`)**: Represents the average percentage gain you
+   aim to achieve through trading.
+3. **Compounding Frequency (`n`)**: Indicates how often you plan to execute
+   trades (e.g., 365 for daily trades).
+4. **Time Period (`t`)**: The time the investment is held, usually in years, but
+   can be adjusted to match your trading strategy.
+5. **Interval**: Unique to Value Averaging, this represents the time step in the
+   sequence and influences the Current Target.
 
 ### Implementation
 
-To calculate the target amount (`A`) and subsequently the trade amount, you can
-use the compound interest formula provided above. Implement this in your chosen
-programming language, such as Python or another suitable language.
-
-Remember that the trade amount is the difference between the calculated target
-amount and your current asset value in either BTC or ETH.
+You can implement the chosen formula in your preferred programming language. The
+trade amount is the difference between your calculated "Current Target" and your
+current asset value in the trading pair (e.g., BTC, ETH).
