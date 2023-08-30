@@ -11,6 +11,7 @@ A = P * (1 + (r / n))^(nt)
 
 Where:
 
+- `A` is the accumulated amount money over `n` years, including interest.
 - `P` is the principal amount or the initial investment.
 - `r` is the annual interest rate in decimal form.
 - `n` is the number of times interest is compounded per unit `t`.
@@ -29,7 +30,7 @@ the formula for this strategy.
    that it could be simplified for practical implementation.
 
    ```
-   Current Target = Principal Amount * (1 + (Annual Interest Rate / Frequency))^(Frequency * Time Period * Interval)
+   Accumulated Amount = Principal Amount * (1 + (Annual Interest Rate / Frequency))^(Frequency * Time Period * Interval)
    ```
 
 2. **Simplified Formula**: This adapted formula incorporates the concept of
@@ -77,17 +78,25 @@ ETH).
 A = P * (1 + (r / n))^(nt)
 ```
 
-**Value Average Formula**
+**Value Averaging Formula**
 
 ```
-A = P * i * (1 + (r / n))^(i)
+T = P * i * (1 + (r / n))^(i)
 ```
 
 Where:
 
+- `A` is the accumulated amount of money over `n` years, including interest.
+- `T` is the Current Target amount accumulated over `i` time steps, including
+  interest. This is unique to the Value Averaging strategy.
 - `P` is the principal amount or the initial investment.
 - `r` is the annual interest rate in decimal form.
 - `n` is the number of times interest is compounded per unit `t`.
 - `t` is the time in years the money is invested or borrowed.
 - `i` is the interval, or time step, unique to Value Averaging strategies that
   influences the "Current Target."
+
+**Note**: While the compound interest formula focuses on accumulating an amount
+over a long period, the Value Averaging strategy aims to reach a specific
+Current Target at each interval, adjusted for both linear and compound growth
+factors.
