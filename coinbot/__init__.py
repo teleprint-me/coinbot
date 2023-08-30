@@ -1,8 +1,24 @@
 """
-"Compound interest is the eighth wonder of the world. He who understands it, earns it... he who doesn't... pays it."
-    - Albert Einstein
+CoinBot: Automated Crypto Trading with Compound Interest Strategy
+Copyright (C) 2023  Austin Berrio
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 coinbot/__init__.py
+
+"Compound interest is the eighth wonder of the world. He who understands it, earns it... he who doesn't... pays it."
+    - Albert Einstein
 """
 
 __version__ = "0.0.2"
