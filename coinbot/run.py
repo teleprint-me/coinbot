@@ -1,4 +1,5 @@
 from decimal import ROUND_HALF_EVEN, Decimal
+from pprint import pprint
 from typing import Dict, List, Optional
 
 
@@ -52,6 +53,7 @@ class ValueAveraging:
         total_trade_amount = trade_amount + self.prev_total_trade_amount
 
         # Rounding for precision
+        current_value = self.round_decimal(current_value, precision)
         order_size = self.round_decimal(
             order_size, 8
         )  # Rounded to 8 decimal places for satoshis
@@ -76,7 +78,47 @@ class ValueAveraging:
         }
 
         # Instantiate the initial record as a list of records
+        assert not self.records, "Records has already been instantiated"
         self.records = [record]
+
+        # Update the class variables for next calculations
+        self.prev_total_order_size = total_order_size
+        self.prev_total_trade_amount = total_trade_amount
+        self.interval += 1
+
+    def update_records(self, market_price, datetime, precision: Optional[int] = 2):
+        market_price = self.round_decimal(market_price, precision)
+        current_target = self.get_target_amount(self.interval)
+        current_value = market_price * self.prev_total_order_size
+        trade_amount = self.calculate_trade_amount(current_target, current_value)
+        total_trade_amount = trade_amount + self.prev_total_trade_amount
+        order_size = trade_amount / market_price
+        total_order_size = order_size + self.prev_total_order_size
+
+        # Rounding for precision
+        current_target = self.round_decimal(current_target, precision)
+        current_value = self.round_decimal(current_value, precision)
+        order_size = self.round_decimal(order_size, 8)
+        total_order_size = self.round_decimal(total_order_size, 8)
+        trade_amount = self.round_decimal(trade_amount, 2)
+        total_trade_amount = self.round_decimal(total_trade_amount, 2)
+
+        # Create a dictionary to store these values
+        record = {
+            "Exchange": "paper",
+            "Date": datetime,
+            "Market Price": market_price,
+            "Current Target": current_target,
+            "Current Value": current_value,
+            "Trade Amount": trade_amount,
+            "Total Trade Amount": total_trade_amount,
+            "Order Size": order_size,
+            "Total Order Size": total_order_size,
+            "Interval": self.interval,
+        }
+
+        # Append this record to our list of records
+        self.records.append(record)
 
         # Update the class variables for next calculations
         self.prev_total_order_size = total_order_size
@@ -85,6 +127,7 @@ class ValueAveraging:
 
 
 # Example usage:
-va = ValueAveraging(principal_amount=10, interest_rate=0.05, frequency=12)
+va = ValueAveraging(principal_amount=10, interest_rate=0.10, frequency=12)
 va.initialize_first_record(market_price=9334.98, datetime="2020-01-01")
-print(va.records)
+va.update_records(8_505.07, datetime="2020-02-01")
+pprint(va.records)
