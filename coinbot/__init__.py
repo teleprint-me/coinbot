@@ -25,3 +25,8 @@ __version__ = "0.0.2"
 __name__ = "coinbot"
 __author__ = "Austin Berrio"
 __email__ = "aberrio@teleprint.me"
+__disclaimer__ = (
+    "DISCLAIMER: I am a programmer and NOT an accredited financial expert. "
+    "For important investment decisions, consult a certified financial professional. "
+    "Do NOT rely on investment advice from anonymous sources online; always conduct thorough research."
+)
