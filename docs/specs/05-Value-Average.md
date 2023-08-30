@@ -54,7 +54,7 @@ evaluated expressions as its set of results.
         IF no previous records
             THEN Current Target = Principal Amount
         IF Previous Current Target
-            THEN Current Target = Principal Amount * (1 + Annual Interest Rate / Frequency) ** (Frequency * Time Period * Interval)
+            THEN Current Target = Principal Amount * Interval * (1 + (Annual Interest Rate / Frequency))^Interval
 
 9.  **Get Previous Total Order Size**
 
@@ -146,8 +146,8 @@ and calculate the first record:
 6.  Get Current Target. For the first record, Current Target is set equal to the
     Principal Amount, reflecting the initial investment. In subsequent records,
     Current Target is calculated using
-    `Principal Amount * Interval * pow(Growth Rate, Interval)` to achieve the
-    specified growth rate over time.
+    `Principal Amount * Interval * pow(1 + (Annual Interest Rate / Frequency), Interval)`
+    to achieve the specified growth rate over time.
 
         Current Target = 10.00
 

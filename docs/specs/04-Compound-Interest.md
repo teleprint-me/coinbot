@@ -1,82 +1,70 @@
 ## Compound Interest Formula
 
-The compound interest formula is used to calculate the target amount for a given
-trade. The formula is as follows:
+The compound interest formula is traditionally used to calculate the future
+value of an investment or loan. In trading strategies like Value Averaging, a
+modified version of the formula can be used to determine the target amount for a
+given trade. The standard formula is:
 
 ```
-A = P(1 + (r/n))^(nt)
+A = P * (1 + (r / n))^(nt)
 ```
 
 Where:
 
-- `P` is the principal amount (initial investment)
-- `r` is the annual interest rate (in decimal form)
-- `n` is the number of times that interest is compounded per unit `t`
-- `t` is the time the money is invested/borrowed for, in years
+- `P` is the principal amount or the initial investment.
+- `r` is the annual interest rate in decimal form.
+- `n` is the number of times interest is compounded per unit `t`.
+- `t` is the time in years the money is invested or borrowed.
 
-## Compound Interest Formula in Value Averaging
+## Compound Interest in Value Averaging
 
-The compound interest formula serves as the base for calculating the target
-amount in Value Averaging trading strategies. The general compound interest
-formula is:
-
-```
-A = P(1 + (r/n))^(nt)
-```
-
-However, in the context of Value Averaging, there may be different adaptations
-of this formula to meet specific trading needs.
+In the context of Value Averaging, the compound interest formula can be adapted
+to meet specific trading objectives. We explored different variations to tailor
+the formula for this strategy.
 
 ### Formula Variations
 
-1. **Original Formula**: This formula incorporates the concept of "Interval,"
-   which is unique to the Value Averaging strategy. The "Interval" signifies the
-   time step in the investment sequence.
-
-   ```
-   Current Target = Principal Amount * Interval * (1 + (Annual Interest Rate / Frequency))^Interval
-   ```
-
-2. **Modified Formula with Compound Interest**: This formula aims to strictly
-   follow the compound interest model for exponential growth.
+1. **Original Formula**: Initially, we used this formula to strictly follow the
+   compound interest model, aiming for exponential growth. However, we found
+   that it could be simplified for practical implementation.
 
    ```
    Current Target = Principal Amount * (1 + (Annual Interest Rate / Frequency))^(Frequency * Time Period * Interval)
    ```
 
-3. **Simplified Formula**: This formula is a blend of the two, combining both
-   linear and compound growth.
+2. **Simplified Formula**: This adapted formula incorporates the concept of
+   "Interval," unique to Value Averaging. The "Interval" represents the time
+   step in the sequence of investments. This formula effectively captures both
+   linear and compound growth factors.
 
    ```
-   Current Target = Principal Amount * Interval * (1 + (Annual Interest Rate / Frequency))^(Frequency * Time Period)
+   Current Target = Principal Amount * Interval * (1 + (Annual Interest Rate / Frequency))^Interval
    ```
 
-### Calculating Trade Amount
+### Calculating the Trade Amount
 
-The trade amount is calculated using the formula:
+The trade amount needed to reach the target investment is calculated as follows:
 
 ```
 Trade Amount = Current Target - Current Value
 ```
 
-This gives the amount you need to buy or sell to reach your target investment
-amount.
-
 ## Formula Parameters
 
-1. **Principal Amount (`P`)**: The initial investment amount, or the amount of
-   asset you aim to invest.
-2. **Annual Interest Rate (`r`)**: Represents the average percentage gain you
-   aim to achieve through trading.
-3. **Compounding Frequency (`n`)**: Indicates how often you plan to execute
-   trades (e.g., 365 for daily trades).
-4. **Time Period (`t`)**: The time the investment is held, usually in years, but
-   can be adjusted to match your trading strategy.
-5. **Interval**: Unique to Value Averaging, this represents the time step in the
-   sequence and influences the Current Target.
+1. **Principal Amount (`P`)**: This is the initial investment or the amount you
+   aim to invest at each step.
+2. **Annual Interest Rate (`r`)**: Represents the average annual percentage gain
+   you aim to achieve through trading.
+3. **Compounding Frequency (`n`)**: Specifies how often you intend to trade,
+   e.g., 365 for daily trades.
+4. **Time Period (`t`)**: The length of time, usually in years, for which the
+   investment is held. This can be adjusted to fit your trading strategy.
+5. **Interval**: This is unique to Value Averaging and represents the time step
+   in the sequence. It influences the "Current Target."
 
-### Implementation
+### Implementation Steps
 
-You can implement the chosen formula in your preferred programming language. The
-trade amount is the difference between your calculated "Current Target" and your
-current asset value in the trading pair (e.g., BTC, ETH).
+The chosen formula can be implemented in your preferred programming language.
+The trade amount is computed as the difference between the calculated "Current
+Target" and your current asset value in the chosen trading pair (e.g., BTC,
+ETH).
