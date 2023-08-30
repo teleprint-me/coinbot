@@ -61,7 +61,11 @@ Trade Amount = Current Target - Current Value
 4. **Time Period (`t`)**: The length of time, usually in years, for which the
    investment is held. This can be adjusted to fit your trading strategy.
 5. **Interval (`i`)**: This is unique to Value Averaging and represents the time
-   step in the sequence. It influences the "Current Target."
+   step in the sequence. It influences the "Current Target", essentially scaling
+   the principal investment to account for the chosen interval. This is
+   important because the Value Averaging strategy involves making regular
+   contributions or adjustments to the investment to bring it in line with the
+   desired growth trajectory.
 
 ### Implementation Steps
 
@@ -86,17 +90,26 @@ T = P * i * (1 + (r / n))^(i)
 
 Where:
 
-- `A` is the accumulated amount of money over `n` years, including interest.
-- `T` is the Current Target amount accumulated over `i` time steps, including
-  interest. This is unique to the Value Averaging strategy.
-- `P` is the principal amount or the initial investment.
-- `r` is the annual interest rate in decimal form.
-- `n` is the number of times interest is compounded per unit `t`.
-- `t` is the time in years the money is invested or borrowed.
-- `i` is the interval, or time step, unique to Value Averaging strategies that
-  influences the "Current Target."
+- **Compound Interest Formula (`A`)** calculates the accumulated amount of money
+  over `n` years, accounting for interest.
+- **Value Averaging Formula (`T`)** calculates the Current Target amount
+  accumulated over `i` intervals, accounting for interest. This formula is
+  specific to the Value Averaging strategy.
+- **Principal (`P`)** is the initial investment amount.
+- **Annual Interest Rate (`r`)** is the interest rate in decimal form.
+- **Compounding Frequency (`n`)** is how often interest is compounded per unit
+  `t`.
+- **Time Period (`t`)** is the time in years for the investment.
+- **Interval (`i`)** is the unique time step in Value Averaging strategies,
+  representing the duration between each trading or adjustment action.
 
-**Note**: While the compound interest formula focuses on accumulating an amount
-over a long period, the Value Averaging strategy aims to reach a specific
-Current Target at each interval, adjusted for both linear and compound growth
-factors.
+In the Value Averaging Formula, multiplying the interval `i` with the principal
+amount `P` adjusts the initial investment to account for the chosen interval.
+This adjustment ensures the investment gradually approaches the desired target
+amount over each interval, aligning with the Value Averaging strategy's growth
+objective.
+
+**Note**: While the compound interest formula focuses on the long-term
+accumulation of an amount, the Value Averaging strategy aims to achieve a
+specific Current Target at each interval, considering both linear and compound
+growth factors.
