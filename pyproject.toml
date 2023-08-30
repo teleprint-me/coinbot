@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "coinbot"
-version = "0.0.1"
+version = "0.0.2"
 description = "Automated Crypto Trading with Compound Interest Strategy"
 authors = ["Austin Berrio <aberrio@teleprint.me>"]
 license = "AGPLv3"
