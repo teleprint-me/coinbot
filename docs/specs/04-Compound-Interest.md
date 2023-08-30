@@ -59,8 +59,8 @@ Trade Amount = Current Target - Current Value
    e.g., 365 for daily trades.
 4. **Time Period (`t`)**: The length of time, usually in years, for which the
    investment is held. This can be adjusted to fit your trading strategy.
-5. **Interval**: This is unique to Value Averaging and represents the time step
-   in the sequence. It influences the "Current Target."
+5. **Interval (`i`)**: This is unique to Value Averaging and represents the time
+   step in the sequence. It influences the "Current Target."
 
 ### Implementation Steps
 
@@ -68,3 +68,26 @@ The chosen formula can be implemented in your preferred programming language.
 The trade amount is computed as the difference between the calculated "Current
 Target" and your current asset value in the chosen trading pair (e.g., BTC,
 ETH).
+
+## Summary
+
+**Compound Interest Formula**
+
+```
+A = P * (1 + (r / n))^(nt)
+```
+
+**Value Average Formula**
+
+```
+A = P * i * (1 + (r / n))^(i)
+```
+
+Where:
+
+- `P` is the principal amount or the initial investment.
+- `r` is the annual interest rate in decimal form.
+- `n` is the number of times interest is compounded per unit `t`.
+- `t` is the time in years the money is invested or borrowed.
+- `i` is the interval, or time step, unique to Value Averaging strategies that
+  influences the "Current Target."
