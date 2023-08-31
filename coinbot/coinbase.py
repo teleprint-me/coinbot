@@ -194,7 +194,21 @@ def get_candlestick_data(
     Returns:
         List of candlestick data dictionaries.
     """
-    pass
+    url = f"{__advanced__}/products/{product_id}/candles"
+    data = {
+        "start": start,
+        "end": end,
+        "granularity": granularity,
+    }
+
+    response = get(url, data)
+
+    # Process response and extract candlestick data
+    candlestick_data = []
+
+    # Processing logic here
+
+    return candlestick_data
 
 
 def get_min_order_size(product_id: str) -> float:
