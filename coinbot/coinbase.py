@@ -1,5 +1,5 @@
 """
-coinbot/api/coinbase.py
+coinbot/coinbase.py
 """
 import hashlib
 import hmac
