@@ -1,5 +1,5 @@
 """
-coinbot/coinbase.py
+coinbot/api/coinbase.py
 """
 import hashlib
 import hmac
@@ -53,8 +53,8 @@ class Auth(AuthBase):
             api: Instance of the API class, if not provided, a default instance is created.
         """
 
-        self.key: Optional[str] = getenv("API_KEY") or ""
-        self.secret: Optional[str] = getenv("API_SECRET") or ""
+        self.key: Optional[str] = getenv("COINBASE_API_KEY") or ""
+        self.secret: Optional[str] = getenv("COINBASE_API_SECRET") or ""
 
     def __call__(self, request: PreparedRequest) -> PreparedRequest:
         """Return the prepared request with updated headers.
