@@ -115,9 +115,17 @@ def get(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
             params=data,
             auth=__auth__,
             timeout=__timeout__,
-        ).json()
+        )
 
-        if "errors" in response and "message" in response["errors"]:
+        if response.status_code == 401:
+            raise RequestException(
+                "401 Unauthorized: Client failed to authenticate the request."
+            )
+        elif response.status_code == 403:
+            raise RequestException(
+                "403 Forbidden: Client failed to authorize the necessary scope."
+            )
+        elif "errors" in response and "message" in response["errors"]:
             raise RequestException(response["errors"]["message"])
         elif "error" in response and "error_description" in response["error"]:
             raise RequestException(response["error"]["error_description"])
@@ -125,7 +133,6 @@ def get(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
             raise RequestException(response["error"]["message"])
         else:
             return response
-
     except RequestException as error:
         raise RequestException(f"Error retrieving GET request: {error}")
 
@@ -150,7 +157,15 @@ def post(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
             timeout=__timeout__,
         )
 
-        if "errors" in response and "message" in response["errors"][0]:
+        if response.status_code == 401:
+            raise RequestException(
+                "401 Unauthorized: Client failed to authenticate the request."
+            )
+        elif response.status_code == 403:
+            raise RequestException(
+                "403 Forbidden: Client failed to authorize the necessary scope."
+            )
+        elif "errors" in response and "message" in response["errors"][0]:
             raise RequestException(response["errors"][0]["message"])
         elif "error" in response and "error_description" in response["error"]:
             raise RequestException(response["error"]["error_description"])
@@ -158,7 +173,6 @@ def post(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
             raise RequestException(response["error"]["message"])
         else:
             return response
-
     except RequestException as error:
         raise RequestException(f"Error retrieving POST request: {error}")
 
@@ -194,7 +208,7 @@ def get_min_order_size(product_id: str) -> float:
     """
 
     url = f"{__advanced__}/products/{product_id}"
-    response = get(url)
+    response = get(url).json()
 
     if "quote_min_size" in response:
         quote_min_size = float(response["quote_min_size"])
@@ -226,9 +240,9 @@ def get_spot_price(
         url = f"{__coinbase__}/prices/{currency_pair}/spot"
 
         if datetime:
-            response = get(url, data={"date": datetime})
+            response = get(url, data={"date": datetime}).json()
         else:
-            response = get(url)
+            response = get(url).json()
 
         print(response)
 
@@ -314,7 +328,7 @@ def post_market_order(
 
         if "success" in response and response["success"]:
             url = f"{__advanced__}/orders/historical/{response['order_id']}"
-            order_response = get(url)
+            order_response = get(url).json()
             order = order_response["order"]
 
             return {
