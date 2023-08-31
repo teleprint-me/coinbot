@@ -23,6 +23,8 @@ coinbot/__init__.py
 
 __version__ = "0.0.2"
 __name__ = "coinbot"
+__agent__ = "teleprint-me/coinbot"
+__source__ = "https://github.com/teleprint-me/coinbot"
 __author__ = "Austin Berrio"
 __email__ = "aberrio@teleprint.me"
 __disclaimer__ = (
