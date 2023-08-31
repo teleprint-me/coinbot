@@ -6,7 +6,7 @@ import hmac
 import time
 from datetime import datetime as dt
 from os import getenv
-from typing import Any, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 # NOTE: Always generate uuid4 for privacy!
 from uuid import uuid4
@@ -78,7 +78,7 @@ class Auth(AuthBase):
         signature = hmac.new(key, msg, hashlib.sha256).hexdigest()
 
         # Sign and authenticate payload.
-        header: dict = {
+        header: Dict = {
             "User-Agent": f"{__agent__}/{__version__} {__source__}",
             "CB-ACCESS-KEY": self.key,
             "CB-ACCESS-SIGN": signature,
@@ -96,7 +96,7 @@ class Auth(AuthBase):
 __auth__ = Auth()
 
 
-def get(url: str, data: Optional[dict] = None) -> dict[str, Any]:
+def get(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
     """Perform a GET request to the specified API path.
 
     Args:
@@ -130,7 +130,7 @@ def get(url: str, data: Optional[dict] = None) -> dict[str, Any]:
         raise RequestException(f"Error retrieving GET request: {error}")
 
 
-def post(url: str, data: Optional[dict] = None) -> dict[str, Any]:
+def post(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
     """Perform a POST request to the specified API path.
 
     Args:
@@ -161,6 +161,26 @@ def post(url: str, data: Optional[dict] = None) -> dict[str, Any]:
 
     except RequestException as error:
         raise RequestException(f"Error retrieving POST request: {error}")
+
+
+def get_candlestick_data(
+    product_id: str,
+    start: int,
+    end: int,
+    granularity: str,
+) -> List[Dict[str, Union[str, float]]]:
+    """Retrieve candlestick data for a trading pair.
+
+    Args:
+        product_id: The trading pair (e.g., 'BTC-USD').
+        start: Timestamp for starting range of aggregations, in UNIX time.
+        end: Timestamp for ending range of aggregations, in UNIX time.
+        granularity: The time slice value for each candle.
+
+    Returns:
+        List of candlestick data dictionaries.
+    """
+    pass
 
 
 def get_min_order_size(product_id: str) -> float:
@@ -225,7 +245,7 @@ def get_simulated_market_order(
     quote_size: float,
     product_id: str,
     side: str = "BUY",
-) -> dict[str, Union[str, float]]:
+) -> Dict[str, Union[str, float]]:
     """Simulate a market order based on current spot price and input parameters.
 
     Args:
@@ -265,7 +285,7 @@ def post_market_order(
     quote_size: float,
     product_id: str,
     side: str = "BUY",
-) -> dict[str, Union[str, float]]:
+) -> Dict[str, Union[str, float]]:
     """Post a market order to the Coinbase Advanced Trade API.
 
     Args:
