@@ -1,6 +1,6 @@
 # CoinBot
 
-CoinBot: Automated Crypto Trading with Compound Interest Strategy
+CoinBot: Automated Trading with Compound Interest Strategy
 
 ## Disclaimer
 
@@ -16,7 +16,7 @@ CoinBot: Automated Crypto Trading with Compound Interest Strategy
 
 ## About CoinBot
 
-CoinBot is a project aimed at providing automated crypto trading with a compound
+CoinBot is a project aimed at providing automated trading with a compound
 interest strategy.
 
 ## Usage
