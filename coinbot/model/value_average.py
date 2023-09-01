@@ -2,7 +2,7 @@
 coinbot/model/value_average.py
 """
 from decimal import ROUND_HALF_EVEN, Decimal
-from sqlite3 import OperationalError
+from sqlite3 import IntegrityError, OperationalError
 from typing import Dict, List, Optional
 
 from coinbot import logging
@@ -85,7 +85,14 @@ class ValueAveraging:
             total_order_size=total_order_size,
             interval=self.interval,
         )
-        record.save()
+
+        try:
+            record.save()
+            logging.info("Successfully saved the record to the database.")
+        except OperationalError as oe:
+            logging.error(f"Failed to save the record: {oe}")
+        except IntegrityError as ie:
+            logging.error(f"Integrity Error: {ie}")
 
         # Update the class variables for next calculations
         self.prev_total_order_size = total_order_size
@@ -122,7 +129,14 @@ class ValueAveraging:
             total_order_size=total_order_size,
             interval=self.interval,
         )
-        record.save()
+
+        try:
+            record.save()
+            logging.info("Successfully saved the record to the database.")
+        except OperationalError as oe:
+            logging.error(f"Failed to save the record: {oe}")
+        except IntegrityError as ie:
+            logging.error(f"Integrity Error: {ie}")
 
         # Update the class variables for next calculations
         self.prev_total_order_size = total_order_size
