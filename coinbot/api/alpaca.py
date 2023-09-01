@@ -4,7 +4,7 @@ coinbot/api/alpaca.py
 import time
 from collections import defaultdict
 from os import getenv
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import requests
 from dotenv import load_dotenv
