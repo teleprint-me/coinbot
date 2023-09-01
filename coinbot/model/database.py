@@ -26,16 +26,32 @@ def ensure_db_connection(method):
     return wrapper
 
 
+def close_db_after_use(method):
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        result = method(self, *args, **kwargs)
+        logging.info("Closing the database connection.")
+        self.close()
+        return result
+
+    return wrapper
+
+
 class ValueAveragingDatabase:
     def __init__(self, db_name: Optional[str] = None):
         self.db_name = db_name or "value_averaging.db"
         self.db = SqliteDatabase(self.db_name)
 
-    def connect(self):
-        self.db.connect()
+    def connect(self) -> bool:
+        try:
+            return self.db.connect()
+        except OperationalError as message:
+            logging.exception(message)
+            logging.warning(f"Connection already exists: {self.db_name}")
+        return False
 
-    def close(self):
-        self.db.close()
+    def close(self) -> bool:
+        return self.db.close()
 
     def _create_value_averaging_model(self, asset_name: str) -> Model:
         db = self.db
@@ -61,22 +77,35 @@ class ValueAveragingDatabase:
     @ensure_db_connection
     def get_model(self, table_name: str) -> Model:
         model = self._create_value_averaging_model(table_name)
-        try:
-            self.db.create_tables([model])
-        except OperationalError as message:
-            logging.exception(message)
-            logging.warning(f"Table may or may not already exist: {table_name}")
+        if self.db.table_exists(model._meta.table_name):
+            logging.info(f"Table {model._meta.table_name} already exists.")
+        else:
+            try:
+                self.db.create_tables([model])
+                logging.info(f"Table {model._meta.table_name} created.")
+            except OperationalError as message:
+                logging.exception(message)
+                logging.warning(f"Table existence is ambiguous: {table_name}")
         return model
 
     @ensure_db_connection
     def get_models(self, table_names: List[str]) -> List[Model]:
         models = []
+        new_models = []
+
         for table_name in table_names:
             model = self._create_value_averaging_model(table_name)
             models.append(model)
+
+        for model in models:
+            if self.db.table_exists(model._meta.table_name):
+                new_models.append(model)
         try:
-            self.db.create_tables(models)
+            if new_models:
+                self.db.create_tables(new_models)
+                logging.info(f"Tables for {new_models} created.")
         except OperationalError as message:
             logging.exception(message)
-            logging.warning(f"Tables may or may not already exist: {table_names}")
+            logging.warning(f"Tables existence is ambiguous: {table_names}")
+
         return models
