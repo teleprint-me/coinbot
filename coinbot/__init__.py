@@ -20,6 +20,7 @@ coinbot/__init__.py
 "Compound interest is the eighth wonder of the world. He who understands it, earns it... he who doesn't... pays it."
     - Albert Einstein
 """
+import logging
 
 __version__ = "0.0.2"
 __name__ = "coinbot"
@@ -32,3 +33,8 @@ __disclaimer__ = (
     "For important investment decisions, consult a certified financial professional. "
     "Do NOT rely on investment advice from anonymous sources online; always conduct thorough research."
 )
+
+# Set logging configuration
+# NOTE: Can be overridden on a script-by-script basis
+logging_format = "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s"
+logging.basicConfig(format=logging_format, level=logging.INFO)
