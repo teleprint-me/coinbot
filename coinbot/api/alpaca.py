@@ -116,7 +116,7 @@ def get(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
         raise RequestException(error)
 
 
-def get_candlesticks(loc: str, data: dict[str, Any]) -> dict[str, List]:
+def get_crypto_candlesticks(loc: str, data: dict[str, Any]) -> dict[str, List]:
     """
     Fetches historical crypto candlestick data from the Alpaca API.
 
