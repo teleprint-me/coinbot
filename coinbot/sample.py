@@ -8,6 +8,7 @@ import click
 
 from coinbot import logging
 from coinbot.api import alpaca
+from coinbot.model.value_average import ValueAveraging
 
 
 @click.command()
@@ -21,6 +22,12 @@ from coinbot.api import alpaca
 )
 @click.option("--loc", default="us", help="The location for sampling.")
 def main(symbols, timeframe, start, end, loc):
+    if "," in symbols or "/" not in symbols:
+        logging.error(
+            "Please provide a single asset class in the format 'ASSET/CURRENCY'"
+        )
+        return
+
     if start is None:
         dt_start = datetime.now(timezone.utc) - timedelta(days=1)
     else:
@@ -44,11 +51,56 @@ def main(symbols, timeframe, start, end, loc):
         logging.warning(f"No results for {symbols} from {start} to {end}")
         return
 
+    asset_name = symbols.split("/")[0]
+    va = ValueAveraging(
+        asset_name=asset_name,
+        principal_amount=100,
+        interest_rate=0.10,
+        frequency=365,  # Using daily candlesticks
+        interval=1,  # Starting interval
+    )
+    logging.info(
+        f"Initialized ValueAveraging with {va.principal_amount} principal at {va.interest_rate} APY."
+    )
+
+    # key: str = "BTC/USD"
+    # results: List[Dict[str, str | int | float]] = [
+    #     {
+    #       "t": "2022-05-27T10:18:00Z",
+    #       "o": 28999,
+    #       "h": 29003,
+    #       "l": 28999,
+    #       "c": 29003,
+    #       "v": 0.01,
+    #       "n": 4,
+    #       "vw": 29001
+    #     }
+    # ]
+    #
+    # Flag to check if the first record is initialized
+    is_first_record_initialized = False
+
     for key, results in sampled.items():
-        # TODO: process the sampled data
-        print(key)
-        for result in results:
-            print(result)
+        # Initialize if first record
+        if not is_first_record_initialized:
+            first_market_price = results[0]["c"]
+            va.initialize_first_record(
+                market_price=first_market_price, datetime=results[0]["t"]
+            )
+            is_first_record_initialized = True
+            start_index = 1  # Skip the first record in the subsequent loop
+        else:
+            start_index = 0  # Include all records
+
+        # Process the sampled data
+        for i in range(start_index, len(results)):
+            result = results[i]
+            if "c" in result and "t" in result:
+                market_price = result["c"]
+                dt = result["t"]
+                va.update_records(market_price, dt)
+            else:
+                logging.warning("Skipping record due to missing 'c' or 't' fields.")
 
 
 if __name__ == "__main__":
