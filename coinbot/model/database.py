@@ -4,7 +4,7 @@ from typing import List, Optional
 from peewee import (
     CharField,
     DateTimeField,
-    FloatField,
+    DecimalField,
     IntegerField,
     Model,
     OperationalError,
@@ -39,7 +39,7 @@ def close_db_after_use(method):
 
 class ValueAveragingDatabase:
     def __init__(self, db_name: Optional[str] = None):
-        self.db_name = db_name or "value_averaging.db"
+        self.db_name = db_name or "value_averaging.sqlite"
         self.db = SqliteDatabase(self.db_name)
 
     def connect(self) -> bool:
@@ -59,13 +59,13 @@ class ValueAveragingDatabase:
         class ValueAveragingRecord(Model):
             exchange = CharField()
             date = DateTimeField()
-            market_price = FloatField()
-            current_target = FloatField()
-            current_value = FloatField()
-            trade_amount = FloatField()
-            total_trade_amount = FloatField()
-            order_size = FloatField()
-            total_order_size = FloatField()
+            market_price = DecimalField()
+            current_target = DecimalField()
+            current_value = DecimalField()
+            trade_amount = DecimalField()
+            total_trade_amount = DecimalField()
+            order_size = DecimalField()
+            total_order_size = DecimalField()
             interval = IntegerField()
 
             class Meta:
