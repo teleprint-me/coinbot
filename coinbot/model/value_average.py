@@ -5,6 +5,8 @@ from decimal import ROUND_HALF_EVEN, Decimal
 from sqlite3 import IntegrityError, OperationalError
 from typing import Dict, List, Optional
 
+from iso8601 import parse_date
+
 from coinbot import logging
 from coinbot.model.database import ValueAveragingDatabase
 
@@ -15,7 +17,8 @@ class ValueAveraging:
         asset_name: str,
         principal_amount: float,
         interest_rate: float,
-        frequency: int,
+        frequency: Optional[int] = 365,  # defaults to daily
+        interval: Optional[int] = 1,
         base_precision: Optional[int] = 8,
         quote_precision: Optional[int] = 2,
     ):
@@ -53,6 +56,7 @@ class ValueAveraging:
     def initialize_first_record(
         self, market_price: float, datetime: str, precision: Optional[int] = 2
     ):
+        datetime = parse_date(datetime)
         market_price = self.round_decimal(market_price, precision)
         current_target = self.principal_amount  # Initial principal amount
         order_size = self.principal_amount / market_price
@@ -100,6 +104,7 @@ class ValueAveraging:
         self.interval += 1
 
     def update_records(self, market_price, datetime, precision: Optional[int] = 2):
+        datetime = parse_date(datetime)
         market_price = self.round_decimal(market_price, precision)
         current_target = self.get_target_amount(self.interval)
         current_value = market_price * self.prev_total_order_size
