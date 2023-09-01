@@ -15,7 +15,7 @@ from requests import RequestException
 from requests.auth import AuthBase
 from requests.models import PreparedRequest
 
-from coinbot import __agent__, __source__, __version__
+from coinbot import __agent__, __source__, __version__, logging
 
 load_dotenv()
 
@@ -118,3 +118,16 @@ def get(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
             return response
     except RequestException as error:
         raise RequestException(error)
+
+
+def get_candlesticks(loc: str, data: dict[str, Any]) -> dict[str, List]:
+    url = f"https://data.alpaca.markets/v1beta3/crypto/{loc}/bars"
+    response = get(url, data=data)
+    data = response.json()
+
+    if response.status_code != 200:
+        error = data.get("message", "Error retrieving candlesticks from Alpaca API")
+        logging.error(f"RequestError: {response.status_code}: {error}")
+        return {}
+
+    return data.get("bars", {})
