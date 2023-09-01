@@ -25,7 +25,7 @@ interest strategy.
 
 ## License
 
-    CoinBot: Automated Crypto Trading with Compound Interest Strategy
+    CoinBot: Automated Trading with Compound Interest Strategy
     Copyright (C) 2023 Austin Berrio
 
     This program is free software: you can redistribute it and/or modify
