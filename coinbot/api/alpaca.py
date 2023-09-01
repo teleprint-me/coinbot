@@ -2,12 +2,8 @@
 coinbot/api/alpaca.py
 """
 import time
-from datetime import datetime as dt
 from os import getenv
 from typing import Any, Dict, List, Optional, Union
-
-# NOTE: Always generate uuid4 for privacy!
-from uuid import uuid4
 
 import requests
 from dotenv import load_dotenv
@@ -121,6 +117,16 @@ def get(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
 
 
 def get_candlesticks(loc: str, data: dict[str, Any]) -> dict[str, List]:
+    """
+    Fetches historical crypto candlestick data from the Alpaca API.
+
+    Args:
+        loc (str): Crypto location, e.g., "us".
+        data (dict[str, Any]): Parameters for the API request.
+
+    Returns:
+        dict[str, List]: Historical candlestick data for specified symbols.
+    """
     url = f"https://data.alpaca.markets/v1beta3/crypto/{loc}/bars"
     response = get(url, data=data)
     data = response.json()
