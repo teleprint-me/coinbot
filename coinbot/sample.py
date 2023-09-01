@@ -2,7 +2,7 @@
 coinbot/sample.py
 """
 from datetime import datetime, timedelta, timezone
-from typing import Any, List
+from typing import Any, Dict, List
 
 import click
 
@@ -13,25 +13,42 @@ from coinbot.api import alpaca
 @click.command()
 @click.option("--symbols", default="BTC/USD", help="Crypto symbols to sample.")
 @click.option("--timeframe", default="1D", help="Timeframe for sampling.")
-@click.option("--start", default=None, help="Start date-time.")
-@click.option("--end", default=None, help="End date-time.")
-def main(symbols, timeframe, start, end):
-    start = datetime(2023, 1, 1, tzinfo=timezone.utc)
-    end = datetime(2023, 1, 30, tzinfo=timezone.utc)
+@click.option(
+    "--start", default=None, help="Start date-time. Format: RFC-3339 or YYYY-MM-DD"
+)
+@click.option(
+    "--end", default=None, help="End date-time. Format: RFC-3339 or YYYY-MM-DD"
+)
+@click.option("--loc", default="us", help="The location for sampling.")
+def main(symbols, timeframe, start, end, loc):
+    if start is None:
+        dt_start = datetime.now(timezone.utc) - timedelta(days=1)
+    else:
+        dt_start = datetime.fromisoformat(start).replace(tzinfo=timezone.utc)
+
+    if end is None:
+        dt_end = datetime.now(timezone.utc)
+    else:
+        dt_end = datetime.fromisoformat(end).replace(tzinfo=timezone.utc)
+
     params = {
         "symbols": symbols,
         "timeframe": timeframe,
-        "start": start.isoformat("T"),
-        "end": end.isoformat("T"),
+        "start": dt_start.isoformat(),
+        "end": dt_end.isoformat(),
     }
 
-    sampled = alpaca.get_crypto_candlesticks("us", params)
-    dataset = sampled.get("BTC/USD")
+    sampled = alpaca.page_crypto_candlesticks(loc, params)
 
-    assert bool(dataset) is True, f"Expected results for BTC/USD from {start} to {end}"
+    if not sampled:
+        logging.warning(f"No results for {symbols} from {start} to {end}")
+        return
 
-    for dataframe in dataset:
-        logging.info(dataframe)
+    for key, results in sampled.items():
+        # TODO: process the sampled data
+        print(key)
+        for result in results:
+            print(result)
 
 
 if __name__ == "__main__":
