@@ -19,7 +19,8 @@ from requests.models import PreparedRequest
 
 from coinbot import __agent__, __source__, __version__
 
-__alpaca__ = "https://paper-api.alpaca.markets"
+__paper__ = "https://paper-api.alpaca.markets"
+__alpaca__ = "https://api.alpaca.markets"
 
 
 class Auth(AuthBase):
