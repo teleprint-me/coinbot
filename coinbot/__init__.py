@@ -22,7 +22,7 @@ coinbot/__init__.py
 """
 import logging
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __name__ = "coinbot"
 __agent__ = "teleprint-me/coinbot"
 __source__ = "https://github.com/teleprint-me/coinbot"
