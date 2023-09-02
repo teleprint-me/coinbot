@@ -1,0 +1,5 @@
+- [Learning to Design Analog Circuits to Meet Threshold Specifications](https://arxiv.org/abs/2307.13861)
+- [Implementation Of MNIST Dataset Learning Using Analog Circuit](https://arxiv.org/abs/2308.16307)
+- [An Introduction to Convolutional Neural Networks](https://arxiv.org/abs/1511.08458)
+- [Temporal Dependencies in Feature Importance for Time Series Predictions](https://arxiv.org/abs/2107.14317)
+- [Liquid Time-constant Networks](https://arxiv.org/abs/2006.04439)
