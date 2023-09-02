@@ -152,63 +152,46 @@ portfolio, tracking the base and quote products for the trade pair.
 
 ### Updating and Improving the Value Averaging Model
 
-When operating within a simulation framework, leveraging historical closing
-prices from a time series dataset is an effective approach for setting the
-Market Price \( M \). This not only enriches the simulation's realism but also
-offers a versatile platform for performance evaluation under diverse market
-conditions.
+\[ I(n) = n + 1 \]
+
+In the context of a simulation, the Interval function \( I(n) \) generates the
+linear sequence \( n \), essentially marking each interval \( i \) in the time
+range. This adds a layer of temporal structure, making the simulation more
+nuanced and providing a robust platform for performance evaluation.
 
 ### Updated Current Value Function with Market Price
 
-To better adapt your Current Value Function \( V(c) \) in a simulation, the
-equation can be modified as:
+\[ V(c) = M_i \times O\_{\text{prev}} \]
 
-\[ V(c) = M*i \times O*{\text{prev}} \]
+\[ I(n) = n + 1 \]
 
-Here \( M*i \) represents the market price at the \( i \)-th interval, which can
-be fetched from the historical closing prices in your time series dataset. \(
-O*{\text{prev}} \) is the accumulated sum of all previous order sizes, aligning
-with your primary algorithmic approach.
+\[ I(n) \] is used in this section to determine the \( i \)-th interval, where
+\( i = I(n) \), thus influencing \( M_i \) and ultimately \( V(c) \).
 
 ### Simulation Steps for \( A(T, V) \)
 
-For each interval \( i \) in your time range, the following steps can be looped:
-
-1. **Fetch \( M_i \)**: Retrieve the market price at the current interval \( i
-   \) from the time series.
-2. **Calculate \( T(i) \)**: Utilize your previously defined Target Value
-   Function.
-3. **Calculate \( V(c) \)**: Implement the updated Current Value Function with
-   \( M_i \).
-4. **Calculate \( A(T, V) \)**: Compute as \( T(i) - V(c) \).
-
-This iterative process generates a series of \( A(T, V) \), allowing you to
-simulate Trade Amounts at every step.
+1. **Initialize \( n \)**: Set \( n = 0 \).
+2. **Calculate \( i \)**: \( i = I(n) \).
+3. **Fetch \( M_i \)**: From the time series based on \( i \).
+4. **Calculate \( T(i) \)**: Utilizing your Target Value Function.
+5. **Calculate \( V(c) \)**: With \( M_i \).
+6. **Calculate \( A(T, V) \)**: \( T(i) - V(c) \).
+7. **Update \( n \)**: \( n = n + 1 \).
 
 ### How to Interpret Each Variable
 
-The use of symbolic notation efficiently abstracts the underlying mechanics of
-each table column. This not only aids in visualizing the data flow but also in
-comprehending how variables evolve at each interval \( i \).
+- \( dt_i \): Datetime at interval \( i \), influenced by \( I(n) \).
+- \( M_i \): Market price at \( I(n) \).
+- \( T_i \): Target value at \( I(n) \).
+- \( V_i \): Current asset value at \( I(n) \).
+- \( A_i \): Trade Amount at \( I(n) \).
+- \( TA_i \): Cumulative trade amount up to \( I(n) \).
+- \( O_i \): Order size at \( I(n) \).
+- \( TO_i \): Cumulative order size up to \( I(n) \).
 
-Here’s a concise variable breakdown:
-
-- \( dt_i \): Datetime for record-keeping at interval \( i \).
-- \( M_i \): Market price fetched at the \( i \)-th interval.
-- \( T_i \): Target value, computed using your defined function at interval \( i
-  \).
-- \( V_i \): Current asset value at interval \( i \).
-- \( A_i \): Trade Amount, a function of \( T_i \) and \( V_i \), calculated as
-  \( A(T, V) = T - V \).
-- \( TA_i \): Cumulative trade amount up to interval \( i \), essentially the
-  running sum of \( A_i \).
-- \( O_i \): Order size at interval \( i \), derived from \( A_i \) and \( M_i
-  \).
-- \( TO_i \): Cumulative order size up to interval \( i \), another running sum
-  but of \( O_i \).
-
-The usage of \( i \) to signify time steps accentuates the temporal dependencies
-and offers a snapshot of the system's state at each specific \( i \).
+In this refined version, the function \( I(n) = n + 1 \) serves to produce the
+linear sequencing of intervals \( i \). This function is critical for advancing
+the time steps and influencing each variable in the simulation.
 
 ### Accurately representing time series representations
 
