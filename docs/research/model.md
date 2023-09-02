@@ -103,7 +103,7 @@ A(T, V) \).
 
 ### Predicting the Trade Amount \( A(T, V) \)
 
-You've astutely noted that \( A(T, V) \) is a function of both \( T(i) \) and \(
+We've astutely noted that \( A(T, V) \) is a function of both \( T(i) \) and \(
 V(c) \) and hinges on the predictability of these functions.
 
 - \( T(i) \) can be determined algorithmically based on known variables.
@@ -145,74 +145,70 @@ portfolio, tracking the base and quote products for the trade pair.
 | Exchange | Datetime | Market Price | Current Target | Current Value | Trade Amount | Total Trade Amount | Order Size | Total Order Size | Interval |
 | -------- | -------- | ------------ | -------------- | ------------- | ------------ | ------------------ | ---------- | ---------------- | -------- |
 | paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i        |
-| paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i        |
-| paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i        |
-| paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i        |
-| paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i        |
+| paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i + 1    |
+| paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i + 1    |
+| paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i + 1    |
+| paper    | dt_i     | M_i          | T_i            | V_i           | A_i          | TA_i               | O_i        | TO_i             | i + 1    |
 
 ### Updating and Improving the Value Averaging Model
 
-If we're operating under the assumption of a simulation, then using historical
-closing prices from a time series is a good strategy for setting the Market
-Price (\( M \)). This will make the simulation more realistic and provide a
-robust way to evaluate the algorithm's performance under different market
+When operating within a simulation framework, leveraging historical closing
+prices from a time series dataset is an effective approach for setting the
+Market Price \( M \). This not only enriches the simulation's realism but also
+offers a versatile platform for performance evaluation under diverse market
 conditions.
 
 ### Updated Current Value Function with Market Price
 
-In a simulation, your Current Value Function \( V(c) \) would then be:
+To better adapt your Current Value Function \( V(c) \) in a simulation, the
+equation can be modified as:
 
 \[ V(c) = M*i \times O*{\text{prev}} \]
 
-Here \( M*i \) is the market price at the \( i \)-th interval, fetched from your
-time series of historical closing prices. \( O*{\text{prev}} \) would be
-calculated as the sum of previous order sizes, as per your original algorithm.
-
-With \( M*i \) coming from historical data and \( O*{\text{prev}} \) calculated
-from prior steps in the simulation, you can get an accurate \( V(c) \) for each
-step.
+Here \( M*i \) represents the market price at the \( i \)-th interval, which can
+be fetched from the historical closing prices in your time series dataset. \(
+O*{\text{prev}} \) is the accumulated sum of all previous order sizes, aligning
+with your primary algorithmic approach.
 
 ### Simulation Steps for \( A(T, V) \)
 
-1. **Fetch \( M_i \)** from the time series based on the current interval \( i
-   \).
-2. **Calculate \( T(i) \)** using your Target Value Function.
-3. **Calculate \( V(c) \)** using your Current Value Function and \( M_i \).
-4. **Calculate \( A(T, V) \)** as \( T(i) - V(c) \).
+For each interval \( i \) in your time range, the following steps can be looped:
 
-By looping through these steps for each \( i \) in your simulation range, you
-can generate a series of \( A(T, V) \), which represent the Trade Amounts at
-each step.
+1. **Fetch \( M_i \)**: Retrieve the market price at the current interval \( i
+   \) from the time series.
+2. **Calculate \( T(i) \)**: Utilize your previously defined Target Value
+   Function.
+3. **Calculate \( V(c) \)**: Implement the updated Current Value Function with
+   \( M_i \).
+4. **Calculate \( A(T, V) \)**: Compute as \( T(i) - V(c) \).
 
-### How to interpret each variable
+This iterative process generates a series of \( A(T, V) \), allowing you to
+simulate Trade Amounts at every step.
 
-I like the use of variables in the table as it neatly abstracts each column into
-its functional form. This approach helps us visualize how the data is generated
-and processed at each interval \( i \).
+### How to Interpret Each Variable
 
-Here's a quick breakdown of how I interpret each variable:
+The use of symbolic notation efficiently abstracts the underlying mechanics of
+each table column. This not only aids in visualizing the data flow but also in
+comprehending how variables evolve at each interval \( i \).
 
-- \( dt_i \): The datetime at interval \( i \), mainly for record-keeping.
-- \( M_i \): The market price at interval \( i \).
-- \( T_i \): The target value calculated at interval \( i \) using the function
-  you outlined earlier.
-- \( V_i \): The current value of your asset at interval \( i \).
-- \( A_i \): The trade amount, a function of \( T_i \) and \( V_i \) as \( A(T,
-  V) = T - V \).
-- \( TA_i \): The total trade amount till interval \( i \), basically a running
-  sum of \( A_i \).
-- \( O_i \): The order size at interval \( i \), a function of \( A_i \) and \(
-  M_i \).
-- \( TO_i \): The total order size till interval \( i \), also a running sum but
-  of \( O_i \).
+Here’s a concise variable breakdown:
 
-The \( i \) notation emphasizes that these variables are a function of the time
-step, which makes it easy to see the temporal dependency.
+- \( dt_i \): Datetime for record-keeping at interval \( i \).
+- \( M_i \): Market price fetched at the \( i \)-th interval.
+- \( T_i \): Target value, computed using your defined function at interval \( i
+  \).
+- \( V_i \): Current asset value at interval \( i \).
+- \( A_i \): Trade Amount, a function of \( T_i \) and \( V_i \), calculated as
+  \( A(T, V) = T - V \).
+- \( TA_i \): Cumulative trade amount up to interval \( i \), essentially the
+  running sum of \( A_i \).
+- \( O_i \): Order size at interval \( i \), derived from \( A_i \) and \( M_i
+  \).
+- \( TO_i \): Cumulative order size up to interval \( i \), another running sum
+  but of \( O_i \).
 
-Our table also highlights that we need to know \( i \) to compute these
-variables. Each row is essentially a snapshot of the state of the system at a
-particular time step \( i \), which is very useful for both understanding and
-implementing the simulation.
+The usage of \( i \) to signify time steps accentuates the temporal dependencies
+and offers a snapshot of the system's state at each specific \( i \).
 
 ### Accurately representing time series representations
 
