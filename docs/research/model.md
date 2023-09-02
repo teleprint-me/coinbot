@@ -122,7 +122,7 @@ The table keeps track of various parameters at each time step, such as:
 - Current Value \( V_t \)
 - And so on
 
-## Table Representation
+### Table Representation
 
 The table is used to represent a single investment within an investor's
 portfolio, tracking the base and quote products for the trade pair.
@@ -193,38 +193,42 @@ In this refined version, the function \( I(n) = n + 1 \) serves to produce the
 linear sequencing of intervals \( i \). This function is critical for advancing
 the time steps and influencing each variable in the simulation.
 
-### Accurately representing time series representations
+**Note**: `Datetime` is a timestamp marking when a record was created, whereas
+the `Interval` progresses linearly and is governed by the function `I(n)=n+1`.
 
-Introducing a different variable to explicitly denote the time step could indeed
-reduce confusion.
+### Explicit Time Series Representation
 
-Let's say we introduce a new variable \( n \) to represent the time step or
-interval, separate from any other variables. The function for calculating the
-target could then be written as:
+To unambiguously define time steps in the model, let's introduce a new variable
+\( n \). This variable will serve as the explicit representation of time steps
+or intervals, independent of other variables.
 
-\[ T(n) = P \times n \times (1 + \frac{r}{f})^n \]
+In this revised model, the function for calculating the target value can be
+represented as:
 
-This way, \( n \) serves as an explicit indicator of the time step.
+\[ T(n) = P \times n \times \left(1 + \frac{r}{f}\right)^n \]
 
-Similarly, for other variables that depend on the time step but are not
-explicitly a function of it, like \( M \), we can represent them as \( M(n) \)
-to clarify that they are specific to a given time step \( n \) but not dependent
-variables of \( n \).
+Here, \( n \) is the clear indicator of the time step, enhancing model
+interpretability.
 
-### Considerations for vectorization and model interpretation and prediction
+Similarly, we can denote variables that are time-step specific but not
+necessarily functions of time as \( M(n) \). This clarifies that they relate to
+a given time step \( n \), without implying they are dependent on \( n \).
 
-Each column in the table can be viewed as a vector that holds a sequence of
-values over multiple time steps. For example, the "Market Price" column \(
-\mathbf{M(n)} \) is a vector where each entry \( M(n) \) corresponds to the
-market price at time step \( n \).
+### Vectorization and Algorithmic Interpretation
 
-Similarly, the "Current Target" column \( \mathbf{T(n)} \), "Current Value"
-column \( \mathbf{V(n)} \), and others can be viewed as vectors in the same
-manner.
+Each column in the table can be conceptualized as a vector containing a sequence
+of values over multiple time steps. For instance, the "Market Price" column \(
+\mathbf{M(n)} \) can be viewed as a vector where each entry \( M(n) \)
+represents the market price at the corresponding time step \( n \).
 
-Understanding them as vectors could make it easier to manipulate and analyze the
-data, especially if you're planning to implement the algorithm programmatically.
-Would you like to explore this further?
+In the same vein, the "Current Target" column \( \mathbf{T(n)} \), "Current
+Value" column \( \mathbf{V(n)} \), and other columns can also be considered as
+vectors.
+
+Understanding these columns as vectors opens up avenues for streamlined data
+manipulation and analysis. This is particularly useful if we aim to implement
+the model programmatically, allowing for more efficient algorithms and easier
+debugging.
 
 ## Neural Network Model
 
