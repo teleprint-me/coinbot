@@ -78,41 +78,39 @@ cross this minimum value, optimizing transaction costs and impact.
 
 ### Model Generalization to any given Asset
 
-Understanding that this can be applied to any volatile, speculative asset
-provides a good context for the algorithm.
+By recognizing that this strategy is applicable to any volatile, speculative
+asset, we expand the scope and utility of our algorithm. This not only broadens
+the appeal but also adds to its adaptability across different asset classes.
 
-Let's formalize the functions based on the information you've shared:
+### Formalizing the Functions
 
-1. **Target Value Function, \( T(i) \)** \[ T(i) = P \times i \times \left( 1 +
-   \frac{r}{f} \right)^{i} \]
+#### 1. Target Value Function, \( T(i) \)
 
-   - Where \( P \) is the Principal Amount, \( r \) is the Annual Interest Rate,
-     \( f \) is the Frequency, and \( i \) is the current Interval.
+\[ T(i) = P \times i \times \left( 1 + \frac{r}{f} \right)^{i} \]
 
-2. **Current Value Function, \( V(c) \)** \[ V(c) = M \times O\_{\text{prev}} \]
+#### 2. Current Value Function, \( V(c) \)
 
-   - Where \( M \) is the Market Price and \( O\_{\text{prev}} \) is the
-     Previous Total Order Size.
+\[ V(c) = M \times O\_{\text{prev}} \]
 
-3. **Trade Amount Function, \( A(T, V) \)** \[ A(T, V) = T(i) - V(c) \]
-   - Where \( T(i) \) is the output of the Target Value Function and \( V(c) \)
-     is the output of the Current Value Function.
+#### 3. Trade Amount Function, \( A(T, V) \)
 
-Your aim is to predict \( A(T, V) \), the Trade Amount, which is a function of
-both \( T(i) \) and \( V(c) \).
+\[ A(T, V) = T(i) - V(c) \]
 
-### Predicting the Trade Amount
+This part is crucial because it transitions us from theoretical models to
+actionable functions. Here we've precisely mapped out the relationship between
+the Target Value \( T(i) \), Current Value \( V(c) \), and the Trade Amount \(
+A(T, V) \).
 
-Since \( A(T, V) = T(i) - V(c) \), the prediction of \( A(T, V) \) largely
-depends on how well you can predict \( T(i) \) and \( V(c) \).
+### Predicting the Trade Amount \( A(T, V) \)
 
-1. \( T(i) \) is deterministic, provided you know \( i \), the interval.
-2. \( V(c) \) would be more challenging because it depends on market conditions
-   via \( M \), the Market Price, and \( O\_{\text{prev}} \), the Previous Total
-   Order Size.
+You've astutely noted that \( A(T, V) \) is a function of both \( T(i) \) and \(
+V(c) \) and hinges on the predictability of these functions.
 
-For a simulation or paper trading, you could make educated guesses or use
-historical data for \( M \), which would then allow you to calculate \( V(c) \).
+- \( T(i) \) can be determined algorithmically based on known variables.
+- \( V(c) \), being market-dependent, presents more of a challenge.
+
+For simulations or paper trading, employing historical data or educated guesses
+for \( M \) (Market Price) can be a viable strategy for estimating \( V(c) \).
 
 ## Time Steps and Variables
 
