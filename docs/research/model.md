@@ -126,9 +126,6 @@ depends on how well you can predict \( T(i) \) and \( V(c) \).
 For a simulation or paper trading, you could make educated guesses or use
 historical data for \( M \), which would then allow you to calculate \( V(c) \).
 
-Would you like to further refine these mathematical expressions or discuss how
-to go about predicting the variables involved, particularly \( V(c) \)?
-
 ## Time Steps and Variables
 
 The table keeps track of various parameters at each time step, such as:
@@ -200,9 +197,6 @@ step.
 By looping through these steps for each \( i \) in your simulation range, you
 can generate a series of \( A(T, V) \), which represent the Trade Amounts at
 each step.
-
-Does this align with your thought process for incorporating the simulation
-component? Would you like to discuss any particular part in more depth?
 
 ### How to interpret each variable
 
