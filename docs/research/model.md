@@ -439,3 +439,42 @@ learn.
 
 We could convert the input features and labels into tensors and proceed with
 training and validation.
+
+#### Additional Considerations
+
+Viewing the table as a list where each row serves as an independent feature
+vector could offer additional flexibility and insights. This perspective could
+influence the choice of neural network architecture and the way we prepare our
+data.
+
+Here are some thoughts:
+
+1. **Batch Training**: If each row is an independent vector, batch training
+   could be a good approach. You could randomly select rows (feature vectors)
+   and feed them as batches into the neural network.
+
+2. **Attention Mechanism**: In some cases, not all feature vectors are equally
+   important for making a prediction. An attention mechanism can allow the model
+   to focus on the most relevant feature vectors.
+
+3. **Ensemble Methods**: Given that each row is independent, ensemble methods
+   like random forests could be applied to a neural network approach for
+   robustness.
+
+4. **Multiple Input Architectures**: If each row can be considered independently
+   but also has some relation to other rows (e.g., temporal ordering), a
+   multiple input architecture could be employed. For example, one neural
+   network could handle individual rows, and another could handle sequences or
+   sets of rows, with both contributing to the final output.
+
+5. **Data Augmentation**: With each row serving as an independent feature
+   vector, techniques like bootstrapping could be useful. Creating new
+   'synthetic' rows by sampling existing rows could enhance the training set.
+
+6. **Feature Engineering**: The idea that each row is an independent feature
+   vector could inspire new feature engineering techniques, such as creating new
+   features that capture the relationship between individual rows, which could
+   be incorporated back into each independent feature vector.
+
+Incorporating one or more of these techniques could be beneficial in simulating
+the Value Averaging investment strategy.
