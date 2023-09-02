@@ -136,6 +136,8 @@ def main(symbols, timeframe, start, end, loc, principal, rate, frequency, interv
             else:
                 logging.warning("Skipping record due to missing 'c' or 't' fields.")
 
+    va.db.close()
+
 
 if __name__ == "__main__":
     main()
