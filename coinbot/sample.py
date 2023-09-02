@@ -12,16 +12,50 @@ from coinbot.model.value_average import ValueAveraging
 
 
 @click.command()
-@click.option("--symbols", default="BTC/USD", help="Crypto symbols to sample.")
-@click.option("--timeframe", default="1D", help="Timeframe for sampling.")
 @click.option(
-    "--start", default=None, help="Start date-time. Format: RFC-3339 or YYYY-MM-DD"
+    "--symbols", default="BTC/USD", help="Crypto symbols to sample. Default is BTC/USD."
 )
 @click.option(
-    "--end", default=None, help="End date-time. Format: RFC-3339 or YYYY-MM-DD"
+    "--timeframe",
+    default="1D",
+    help="Timeframe for sampling. Default is 1D. Possible values: '1D', '1H', '15T', etc.",
 )
-@click.option("--loc", default="us", help="The location for sampling.")
-def main(symbols, timeframe, start, end, loc):
+@click.option(
+    "--start",
+    default=None,
+    help="Start date-time for sampling. Format: RFC-3339 or YYYY-MM-DD.",
+)
+@click.option(
+    "--end",
+    default=None,
+    help="End date-time for sampling. Format: RFC-3339 or YYYY-MM-DD.",
+)
+@click.option(
+    "--loc",
+    default="us",
+    help="The location for sampling. Default is us. Possible values: 'us', etc.",
+)
+@click.option(
+    "--principal",
+    default=100.00,
+    help="The principal amount. Default is 100. Specify as a decimal value.",
+)
+@click.option(
+    "--rate",
+    default=0.10,
+    help="The annual interest rate. Default is 0.10. Specify as a decimal value.",
+)
+@click.option(
+    "--frequency",
+    default=365,
+    help="How often interest is compounded per year. Default is 365. Specify as an integer value.",
+)
+@click.option(
+    "--interval",
+    default=1,
+    help="The time step between each trade. Default is 1. Specify as an integer value.",
+)
+def main(symbols, timeframe, start, end, loc, principal, rate, frequency, interval):
     if "," in symbols or "/" not in symbols:
         logging.error(
             "Please provide a single asset class in the format 'ASSET/CURRENCY'"
@@ -54,10 +88,10 @@ def main(symbols, timeframe, start, end, loc):
     asset_name = symbols.split("/")[0]
     va = ValueAveraging(
         asset_name=asset_name,
-        principal_amount=100,
-        interest_rate=0.10,
-        frequency=365,  # Using daily candlesticks
-        interval=1,  # Starting interval
+        principal_amount=principal,
+        interest_rate=rate,
+        frequency=frequency,  # Using daily candlesticks
+        interval=interval,  # Starting interval
     )
     logging.info(
         f"Initialized ValueAveraging with {va.principal_amount} principal at {va.interest_rate} APY."
