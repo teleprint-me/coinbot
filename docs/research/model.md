@@ -1,92 +1,80 @@
-# Investment Simulation Algorithm and Neural Network Model
+# Investment Algorithm and Neural Network Model for Value Averaging Strategy
 
 ## Table of Contents
 
-1. [Algorithm Overview](#Algorithm-Overview)
-2. [Target Value Function](#Target-Value-Function)
-3. [Time Steps and Variables](#Time-Steps-and-Variables)
-4. [Table Representation](#Table-Representation)
-5. [Neural Network Model](#Neural-Network-Model)
+1. [Introduction](#Introduction)
+2. [Background](#Background)
+   - [Value Averaging Strategy](#Value-Averaging-Strategy)
+   - [Mathematical Formulation](#Mathematical-Formulation)
+3. [Objective](#Objective)
+4. [Table Representation and Variables](#Table-Representation-and-Variables)
+5. [Algorithm Development](#Algorithm-Development)
+   - [Forward Pass Algorithm](#Forward-Pass-Algorithm)
+6. [Neural Network Model](#Neural-Network-Model)
+7. [Conclusion](#Conclusion)
 
-## The Value Averaging investment strategy
+## Introduction
 
-The Value Averaging investment strategy essentially aims to adjust the
-investment amount based on the actual portfolio value in comparison to a
-predefined target value. With that in mind, let's try to break down the
-algorithm.
+In the realm of investment strategies, Value Averaging is a popular approach
+aimed at optimizing portfolio value by adjusting investment amounts based on
+real-time portfolio valuation. This project intends to deconstruct the strategy
+into a sequence of mathematical functions. The objective is to formulate an
+algorithm that can provide predictive insights into the Target Value based on
+historical and current data.
 
-### Variables
+## Background
 
-1. **Market Price**: The price of the asset at the time of the trade.
-2. **Current Target**: A predetermined value that the portfolio should ideally
-   be at by a certain date.
-3. **Current Value**: The actual value of the portfolio based on the Market
-   Price.
-4. **Trade Amount**: The amount to trade to bring the Current Value closer to
-   the Current Target (Trade Amount = Current Target - Current Value).
-5. **Total Trade Amount**: Sum of all trade amounts so far.
-6. **Order Size**: How much of the asset you'll buy or sell (Trade Amount /
-   Market Price).
-7. **Total Order Size**: Sum of all order sizes so far.
-8. **Interval**: The step in the sequence we are at.
+### Value Averaging Strategy
 
-## Algorithm Overview
+Here, the concept behind the Value Averaging investment strategy will be
+elucidated. This strategy is characterized by a tabulated sequence of steps,
+each containing variables such as Market Price, Current Target, and Current
+Value, among others.
 
-1. Define Principal Amount
-2. Define Annual Interest Rate
-3. Define Frequency
-4. Define Time Period
-5. Get Datetime
-6. Get Market Price
-7. Get Interval
-8. Get Current Target
-9. Get Previous Total Order Size
-10. Get Order Size
-11. Get Total Order Size
-12. Get Current Value
-13. Get Previous Total Trade Amount
-14. Get Trade Amount
-15. Get Total Trade Amount
+### Mathematical Formulation
 
-## Target Value Function
+Understanding the algorithm from a mathematical standpoint is vital. The
+variables and constants will be translated into mathematical expressions, laying
+the foundation for algorithmic representation.
 
-The Target Value is calculated as follows:
+## Objective
 
-\[ T(i) = P \times i \times (1 + \frac{r}{f})^i \]
+The primary goal is to develop a forward-pass algorithm capable of estimating
+the Target Value within a certain range, thereby aiding decision-making
+processes in real-world investment scenarios.
 
-Where \( P \) is the principal amount, \( r \) is the annual interest rate, \( f
-\) is the frequency, and \( i \) is the interval.
+## Mathematical Formulation of the Value Averaging Strategy
 
-### Mathematical Formulation of Target
+### Target Value Function \( T(i) \)
 
-You already have an expression for the target `T` at the `i`-th interval
-(`i_i`):
+The Target Value \( T(i) \) is pivotal in implementing the Value Averaging
+strategy. It's computed using the formula:
 
-\[ T_i = P \times i_i \times \left( 1 + \frac{r}{f} \right)^{i_i} \]
+\[ T(i) = P \times i \times \left( 1 + \frac{r}{f} \right)^{i} \]
 
-Here,
+Where:
 
-- \( P \) is the Principal Amount,
-- \( r \) is the Annual Interest Rate,
-- \( f \) is the Frequency,
-- \( i_i \) is the current Interval.
+- \( P \) = Principal Amount
+- \( r \) = Annual Interest Rate
+- \( f \) = Frequency
+- \( i \) = Current Interval
 
-This equation captures the essence of the value-averaging strategy by adjusting
-the current target as a function of the current interval. You're applying a
-compound growth factor based on the annual interest rate and frequency to get
-the adjusted target amount. This makes the target amount dynamic and adjusted
-for the time value of money, which is excellent.
+This formula encapsulates the compound growth based on the interest rate and the
+frequency, making it the cornerstone of our algorithm. This ensures the target
+amount is dynamic and reflects the time value of money.
 
-### One thing to consider
+### Predicting the Current Target
 
-We'd like to predict the `Current Target` based on the `Current Value`. Given
-that the current target \( T_i \) is an independent variable calculated based on
-constant values and the current interval, predicting it should be
-straightforward if you know the interval and constants.
+While \( T(i) \) is an independent variable calculated based on constant
+parameters and the interval \( i \), predicting it would be straightforward if
+these parameters are known. However, estimating \( T(i) \) relative to the
+`Current Value` provides a dynamic range that can help in decision-making.
 
-I'd recommend introducing the `MIN_TRADE_AMOUNT` constraint in the algorithm
-steps, as you've noted, to ensure that trades only occur when they are above
-this threshold.
+### Constraints and Thresholds
+
+To prevent undesirably small trades, a `MIN_TRADE_AMOUNT` threshold can be
+introduced into the algorithm. This will ensure that trades occur only when they
+cross this minimum value, optimizing transaction costs and impact.
 
 ### Model Generalization to any given Asset
 
