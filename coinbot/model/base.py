@@ -1,17 +1,17 @@
 """
 coinbot/model/base.py
 """
+from abc import abstractmethod
 
 
 class Layer:
     def __init__(self):
-        self.input = None
-        self.output = None
+        ...
 
+    @abstractmethod
     def forward(self, input):
-        # TODO: return output
-        pass
+        ...
 
+    @abstractmethod
     def backward(self, output_gradient, learning_rate):
-        # TODO: update parameters and return input gradient
-        pass
+        ...
