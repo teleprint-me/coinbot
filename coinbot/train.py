@@ -1,84 +1,152 @@
 """
 coinbot/train.py
 """
-
+import click
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-from coinbot.model.base import Layer  # assuming your base Layer is here
-from coinbot.model.dense import Dense  # assuming your Dense layer is here
+from coinbot import logging
+from coinbot.model.database import ValueAveragingDatabase
+from coinbot.model.dense import Dense, Tanh, mse_prime, regularized_mse
 
-# Your data
-data = [
-    [
-        "paper",
-        "01/01/20",
-        9334.98,
-        10.00,
-        0.00,
-        10.00,
-        10.00,
-        0.00107124,
-        0.00107124,
-        1,
-    ],
-    # ... more rows
-]
 
-# Convert data to a pandas DataFrame for easier manipulation
-df = pd.DataFrame(
-    data,
-    columns=[
-        "Exchange",
-        "Date",
-        "Market Price",
-        "Current Target",
-        "Current Value",
-        "Trade Amount",
-        "Total Trade Amount",
-        "Order Size",
-        "Total Order Size",
-        "Interval",
-    ],
+def train_network(X, y):
+    # Input for DNN
+    X = np.array(X)
+
+    # Output for DNN
+    Y = np.array(y)
+
+    # Network architecture
+    network = [Dense(2, 3), Tanh(), Dense(3, 1), Tanh()]
+
+    # Decode the output back to original labels if needed
+    # ... (use inverse_transform() from label_encoder or onehot_encoder)
+    # Training parameters
+    epochs = 10000
+    learning_rate = 0.15
+    lambda_ = 1e-5  # L2 regularization
+    tolerance = 1e-5  # Tolerance for early stopping
+    prev_loss = None  # To store the previous loss
+
+    # Training loop
+    for epoch in range(epochs):
+        # Forward pass
+        output = X
+        for layer in network:
+            output = layer.forward(output)
+
+        # Extract weights for regularization from the Dense layers
+        # and concatenate all the weights into one flat array
+        weights = [layer.weights for layer in network if isinstance(layer, Dense)]
+        all_weights = np.concatenate([w.flatten() for w in weights])
+        # Calculate loss with regularization
+        loss = regularized_mse(Y, output, all_weights, lambda_)
+
+        # Check for early stopping
+        if prev_loss is not None:
+            if abs(prev_loss - loss) < tolerance:
+                logging.warning(f"Early stopping on epoch {epoch}, Loss: {loss}")
+                break
+
+        # Backward pass
+        gradient = mse_prime(Y, output)
+        for layer in reversed(network):
+            gradient = layer.backward(gradient, learning_rate, lambda_)
+
+        # Print loss every 1000 epochs
+        if epoch % 1000 == 0:
+            logging.info(f"Epoch {epoch}, Loss: {loss}")
+
+        prev_loss = loss  # Update the previous loss
+
+    return network
+
+
+# Save not just the output, but also the model's parameters (weights and biases)
+def save_model(network, filename):
+    model_parameters = [
+        layer.get_params() for layer in network if isinstance(layer, Dense)
+    ]
+    np.save(filename, model_parameters)
+
+
+@click.command()
+@click.argument(
+    "input_id",
+    type=click.STRING,
+    default="BTC",
 )
-
-# Label encoding for 'Exchange'
-label_encoder = LabelEncoder()
-df["Exchange"] = label_encoder.fit_transform(df["Exchange"])
-
-# One-hot encoding for 'Exchange'
-onehot_encoder = OneHotEncoder()
-exchange_onehot = onehot_encoder.fit_transform(df[["Exchange"]]).toarray()
-exchange_onehot_df = pd.DataFrame(
-    exchange_onehot,
-    columns=[f"Exchange_{int(i)}" for i in range(exchange_onehot.shape[1])],
+@click.argument(
+    "output_id",
+    type=click.Path(exists=True),
+    default="models/va.model.npy",
 )
-df = pd.concat([df, exchange_onehot_df], axis=1).drop(["Exchange"], axis=1)
+@click.option(
+    "--database",
+    default=None,
+    help="The name of the database. Default is None.",
+)
+@click.option(
+    "--layers",
+    default=3,
+    help="The number of layers the model should have. Default is None.",
+)
+@click.option(
+    "--parameters",
+    default=5,
+    help="The number of parameters the model should have. Default is None.",
+)
+def main(input_id, output_id, database, layers, parameters):
+    # Load Simulated Data for Preprocessing
 
-# Break down 'Date' into year, month, and day
-df["Date"] = pd.to_datetime(df["Date"])
-df["Year"] = df["Date"].dt.year
-df["Month"] = df["Date"].dt.month
-df["Day"] = df["Date"].dt.day
-df.drop(["Date"], axis=1, inplace=True)
+    # Connect to database and get model
+    db = ValueAveragingDatabase(database)
+    db.connect()
+    asset_model = db.get_model(input_id)
 
-# Your input and output
-X = df.drop(
-    ["Current Target"], axis=1
-).to_numpy()  # assuming 'Current Target' is what you're trying to predict
-y = df["Current Target"].to_numpy()
+    # Query data and convert to DataFrame
+    data = list(asset_model.select().dicts())
+    df = pd.DataFrame(data)
 
-# Initialize your layers and neural network here, for example:
-input_dim = X.shape[1]
-output_dim = 1  # or whatever it is for 'Current Target'
-dense_layer = Dense(input_dim, output_dim)
+    # Data Preprocessing
 
-# Forward pass
-output = dense_layer.forward(X)
+    # Label encoding for 'Exchange'
+    label_encoder = LabelEncoder()
+    df["Exchange"] = label_encoder.fit_transform(df["Exchange"])
 
-# Backward pass and parameter update
-# ...
+    # One-hot encoding for 'Exchange'
+    onehot_encoder = OneHotEncoder()
+    exchange_onehot = onehot_encoder.fit_transform(df[["Exchange"]]).toarray()
+    exchange_onehot_df = pd.DataFrame(
+        exchange_onehot,
+        columns=[f"Exchange_{int(i)}" for i in range(exchange_onehot.shape[1])],
+    )
+    df = pd.concat([df, exchange_onehot_df], axis=1).drop(["Exchange"], axis=1)
 
-# Decode the output back to original labels if needed
-# ... (use inverse_transform() from label_encoder or onehot_encoder)
+    # Break down 'Date' into year, month, and day
+    df["Date"] = pd.to_datetime(df["Date"])
+    df["Year"] = df["Date"].dt.year
+    df["Month"] = df["Date"].dt.month
+    df["Day"] = df["Date"].dt.day
+    df.drop(["Date"], axis=1, inplace=True)
+
+    # Your input and output
+    X = df.drop(
+        ["Current Target"], axis=1
+    ).to_numpy()  # assuming 'Current Target' is what you're trying to predict
+    y = df["Current Target"].to_numpy()
+
+    # Train the network
+    trained_model = train_network(X, y)
+
+    # Save the model
+    save_model(trained_model, output_id)
+
+    # Log completion
+    logging.info(f"Model trained and saved at {output_id}")
+
+
+if __name__ == "__main__":
+    main()
