@@ -47,8 +47,8 @@ class Dense(Layer):
         input_gradient = np.dot(output_gradient, self.weights.T)
         weights_gradient = np.dot(self.input.T, output_gradient)
 
-        # Incorporate L2 regularization term during weight update
-        self.weights -= learning_rate * (weights_gradient + lambda_ * self.weights)
+        # Update parameters with regularization
+        self.weights -= learning_rate * (weights_gradient + 2 * lambda_ * self.weights)
         self.biases -= learning_rate * np.sum(output_gradient, axis=0, keepdims=True)
 
         return input_gradient
