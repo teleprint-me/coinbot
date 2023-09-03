@@ -25,7 +25,7 @@ interest strategy.
 
 ```sh
 23:39:41 | ~/Documents/code/remote/coinbot
-(.venv) git:(main | Δ) λ python -m coinbot.xor                         
+(.venv) git:(main | Δ) λ python -m coinbot.xor
 Epoch 0, Loss: 1.2193738304196795
 Epoch 1000, Loss: 0.13607794952566488
 Epoch 2000, Loss: 0.029654949330373555
@@ -53,50 +53,50 @@ different scenarios:
    default values for the trade pair, timeframe, and other options.
 
    ```sh
-   python -m coinbot.sample
+   python -m coinbot.simulate
    ```
 
 2. **Specify Trade Pair and Timeframe**: You can specify the trade pair (crypto
    symbols) and the timeframe for sampling. For example:
 
    ```sh
-   python -m coinbot.sample --symbols ETH/USD --timeframe 1H
+   python -m coinbot.simulate --symbols ETH/USD --timeframe 1H
    ```
 
 3. **Specify Start and End Dates**: You can provide specific start and end dates
    for sampling. For example:
 
    ```sh
-   python -m coinbot.sample --start 2023-01-01 --end 2023-08-31
+   python -m coinbot.simulate --start 2023-01-01 --end 2023-08-31
    ```
 
 4. **Customize Principal and Rate**: You can adjust the principal amount and
    annual interest rate. For example:
 
    ```sh
-   python -m coinbot.sample --principal 500.00 --rate 0.15
+   python -m coinbot.simulate --principal 500.00 --rate 0.15
    ```
 
 5. **Change Frequency and Interval**: You can modify the compounding frequency
    and time step interval. For example:
 
    ```sh
-   python -m coinbot.sample --frequency 250 --interval 2
+   python -m coinbot.simulate --frequency 250 --interval 2
    ```
 
 6. **Testing Error Handling**: You can test how the script handles errors by
    providing an invalid trade pair or missing required options:
 
    ```sh
-   python -m coinbot.sample --symbols INVALIDPAIR
-   python -m coinbot.sample --symbols BTC/USD --interval -1
+   python -m coinbot.simulate --symbols INVALIDPAIR
+   python -m coinbot.simulate --symbols BTC/USD --interval -1
    ```
 
 7. **Example with All Options**: A more comprehensive command using various
    options:
 
    ```sh
-   python -m coinbot.sample --symbols LTC/USD --timeframe 15T --start 2023-07-01 --end 2023-07-15 --principal 1000.00 --rate 0.08 --frequency 180 --interval 3
+   python -m coinbot.simulate --symbols LTC/USD --timeframe 15T --start 2023-07-01 --end 2023-07-15 --principal 1000.00 --rate 0.08 --frequency 180 --interval 3
    ```
 
 Keep in mind that the script is designed for a single trade pair, so you can
