@@ -2,8 +2,9 @@
 tests/dense.py
 """
 import numpy as np
+from numpy.testing import assert_almost_equal
 
-from coinbot.model.dense import Dense, Tanh, mse, mse_prime
+from coinbot.model.dense import Dense, Tanh, mse, mse_prime, regularized_mse
 
 
 def test_initialization():
@@ -35,6 +36,33 @@ def test_mse_loss():
     assert np.isclose(loss, 1 / 3)
 
 
+def test_regularized_mse():
+    # Generate some random input and output data
+    y_true = np.array([1.0, 2.0, 3.0])
+    y_pred = np.array([0.8, 2.1, 3.2])
+
+    # Generate some random weights
+    weights = np.array([0.5, 0.4, 0.3])
+
+    # Set regularization parameter
+    lambda_ = 0.01
+
+    # Calculate the mse loss without regularization
+    mse_loss = mse(y_true, y_pred)
+
+    # Calculate the regularized mse loss
+    reg_mse_loss = regularized_mse(y_true, y_pred, weights, lambda_)
+
+    # Manually calculate the regularization term
+    l2_penalty = lambda_ * np.sum(np.square(weights))
+
+    # Manually calculate the expected regularized mse loss
+    expected_reg_mse_loss = mse_loss + l2_penalty
+
+    # Verify if the function returns the expected regularized mse loss
+    assert_almost_equal(reg_mse_loss, expected_reg_mse_loss, decimal=6)
+
+
 def test_backward_pass():
     # Initialize layers
     dense1 = Dense(2, 3)
@@ -45,6 +73,12 @@ def test_backward_pass():
     # Initialize data
     X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
     Y = np.array([[0], [1], [1], [0]])
+
+    # Store initial weights and biases for comparison
+    initial_weights1 = dense1.weights.copy()
+    initial_biases1 = dense1.biases.copy()
+    initial_weights2 = dense2.weights.copy()
+    initial_biases2 = dense2.biases.copy()
 
     # Forward pass
     layer1_output = dense1.forward(X)
@@ -57,12 +91,19 @@ def test_backward_pass():
     loss_gradient = mse_prime(Y, output)
 
     # Backward pass
-    gradient = activation2.backward(loss_gradient, 0.1)
-    gradient = dense2.backward(gradient, 0.1)
-    gradient = activation1.backward(gradient, 0.1)
-    gradient = dense1.backward(gradient, 0.1)
+    gradient = activation2.backward(loss_gradient, 0.1, 1e-5)
+    gradient = dense2.backward(gradient, 0.1, 1e-5)
+    gradient = activation1.backward(gradient, 0.1, 1e-5)
+    gradient = dense1.backward(gradient, 0.1, 1e-5)
 
     # Assertions to verify the backward pass works as expected
-    # Modify these as per your specific requirements
     assert loss >= 0  # Loss should be non-negative
-    assert gradient.shape == X.shape  # Final gradient should have same shape as input
+    assert (
+        gradient.shape == X.shape
+    )  # Final gradient should have the same shape as input
+
+    # Check if weights and biases got updated
+    assert not np.array_equal(initial_weights1, dense1.weights)
+    assert not np.array_equal(initial_biases1, dense1.biases)
+    assert not np.array_equal(initial_weights2, dense2.weights)
+    assert not np.array_equal(initial_biases2, dense2.biases)
