@@ -82,3 +82,25 @@ class Tanh(Activation):
     @staticmethod
     def tanh_prime(x):
         return 1.0 - np.tanh(x) ** 2
+
+
+class Trainer:
+    def __init__(self, X, y, network, **params):
+        # params can have:
+        # number of params
+        # number of layers
+        # epochs
+        # learning_rate
+        # lambda_
+        # tolerance
+        # prev_loss, e.g. loss state
+        ...
+
+    def loop(self):
+        # can return network architecture
+        # or stored as a attribute, e.g. self.network
+        # e.g. network = [Dense(2, 3), Tanh(), Dense(3, 1), Tanh()]
+        ...
+
+    def save_model(filename):
+        ...
