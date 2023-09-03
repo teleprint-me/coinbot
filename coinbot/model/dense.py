@@ -14,6 +14,12 @@ def mse_prime(y_true, y_pred):
     return 2 * (y_pred - y_true) / y_true.size
 
 
+def regularized_mse(y_true, y_pred, weights, lambda_):
+    mse_loss = np.mean(np.square(y_true - y_pred))
+    l2_penalty = lambda_ * np.sum(np.square(weights))
+    return mse_loss + l2_penalty
+
+
 class Layer:
     def __init__(self):
         ...
@@ -37,12 +43,12 @@ class Dense(Layer):
         self.output = np.dot(self.input, self.weights) + self.biases
         return self.output
 
-    def backward(self, output_gradient, learning_rate):
+    def backward(self, output_gradient, learning_rate, lambda_):
         input_gradient = np.dot(output_gradient, self.weights.T)
         weights_gradient = np.dot(self.input.T, output_gradient)
 
-        # Update parameters
-        self.weights -= learning_rate * weights_gradient
+        # Incorporate L2 regularization term during weight update
+        self.weights -= learning_rate * (weights_gradient + lambda_ * self.weights)
         self.biases -= learning_rate * np.sum(output_gradient, axis=0, keepdims=True)
 
         return input_gradient
@@ -58,7 +64,7 @@ class Activation(Layer):
         self.output = self.activation(self.input)
         return self.output
 
-    def backward(self, output_gradient, learning_rate):
+    def backward(self, output_gradient, learning_rate, lambda_):
         return np.multiply(output_gradient, self.activation_prime(self.input))
 
 
