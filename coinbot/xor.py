@@ -5,7 +5,7 @@ coinbot/xor.py
 """
 import numpy as np
 
-from coinbot.model.dense import Dense, Tanh, mse, mse_prime
+from coinbot.model.dense import Dense, Tanh, mse_prime, regularized_mse
 
 # Input for XOR
 X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
@@ -18,7 +18,8 @@ network = [Dense(2, 3), Tanh(), Dense(3, 1), Tanh()]
 
 # Training parameters
 epochs = 10000
-learning_rate = 0.01
+learning_rate = 0.1
+lambda_ = 0.01  # L2 Regularization parameter
 
 # Training loop
 for epoch in range(epochs):
@@ -27,13 +28,22 @@ for epoch in range(epochs):
     for layer in network:
         output = layer.forward(output)
 
-    # Calculate loss
-    loss = mse(Y, output)
+    # Extract weights for regularization from the Dense layers
+    weights = []
+    for layer in network:
+        if isinstance(layer, Dense):
+            weights.append(layer.weights)
 
-    # Backward pass
+    # Concatenate all the weights into one flat array
+    all_weights = np.concatenate([w.flatten() for w in weights])
+
+    # Calculate loss with regularization
+    loss = regularized_mse(Y, output, all_weights, lambda_)
+
+    # Backward pass (backward pass needs to include regularization)
     gradient = mse_prime(Y, output)
     for layer in reversed(network):
-        gradient = layer.backward(gradient, learning_rate)
+        gradient = layer.backward(gradient, learning_rate, lambda_)
 
     # Print loss every 1000 epochs
     if epoch % 1000 == 0:
