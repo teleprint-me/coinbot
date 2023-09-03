@@ -5,6 +5,8 @@ from abc import abstractmethod
 
 import numpy as np
 
+from coinbot import logging
+
 
 def mse(y_true, y_pred):
     return np.mean(np.square(y_true - y_pred))
@@ -56,6 +58,10 @@ class Dense(Layer):
     def get_params(self):
         return self.weights, self.biases
 
+    def set_params(self, weights, biases):
+        self.weights = weights
+        self.biases = biases
+
 
 class Activation(Layer):
     def __init__(self, activation, activation_prime):
@@ -85,22 +91,67 @@ class Tanh(Activation):
 
 
 class Trainer:
-    def __init__(self, X, y, network, **params):
-        # params can have:
-        # number of params
-        # number of layers
-        # epochs
-        # learning_rate
-        # lambda_
-        # tolerance
-        # prev_loss, e.g. loss state
-        ...
+    def __init__(self, X, y, architecture, **params):
+        self.X = X
+        self.y = y
+        self.epochs = params.get("epochs", 10000)
+        self.learning_rate = params.get("learning_rate", 0.15)
+        self.lambda_ = params.get("lambda_", 1e-5)
+        self.tolerance = params.get("tolerance", 1e-5)
+        self.prev_loss = params.get("prev_loss", None)
 
-    def loop(self):
-        # can return network architecture
-        # or stored as a attribute, e.g. self.network
-        # e.g. network = [Dense(2, 3), Tanh(), Dense(3, 1), Tanh()]
-        ...
+        self.network = []
+        for layer in architecture:
+            if layer["type"] == "Dense":
+                self.network.append(Dense(layer["input_dim"], layer["output_dim"]))
+            elif layer["type"] == "Tanh":
+                self.network.append(Tanh())
 
-    def save_model(filename):
-        ...
+    def run_training(self):
+        for epoch in range(self.epochs):
+            output = self.X
+            for layer in self.network:
+                output = layer.forward(output)
+
+            # Extract weights for regularization from the Dense layers
+            # and concatenate all the weights into one flat array
+            weights = [
+                layer.weights for layer in self.network if isinstance(layer, Dense)
+            ]
+            all_weights = np.concatenate([w.flatten() for w in weights])
+            # Calculate loss with regularization
+            loss = regularized_mse(self.y, output, all_weights, self.lambda_)
+
+            # Check for early stopping
+            if self.prev_loss is not None:
+                if abs(self.prev_loss - loss) < self.tolerance:
+                    logging.warning(f"Early stopping on epoch {epoch}, Loss: {loss}")
+                    break
+
+            # Backward pass
+            gradient = mse_prime(self.y, output)
+            for layer in reversed(self.network):
+                gradient = layer.backward(gradient, self.learning_rate, self.lambda_)
+
+            # Print loss every 1000 epochs
+            if epoch % 1000 == 0:
+                logging.info(f"Epoch {epoch}, Loss: {loss}")
+
+            self.prev_loss = loss  # Update the previous loss
+
+        # save the trained network as an attribute
+        self.trained_network = self.network
+
+    def save_model(self, filename):
+        model_parameters = [
+            layer.get_params()
+            for layer in self.trained_network
+            if isinstance(layer, Dense)
+        ]
+        np.save(filename, model_parameters)
+
+    def load_model(self, filename):
+        model_parameters = np.load(filename, allow_pickle=True)
+        for layer, params in zip(self.network, model_parameters):
+            if isinstance(layer, Dense):
+                layer.set_params(*params)
