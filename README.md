@@ -21,6 +21,28 @@ interest strategy.
 
 ## Usage
 
+### Hello, World!
+
+```sh
+23:39:41 | ~/Documents/code/remote/coinbot
+(.venv) git:(main | Δ) λ python -m coinbot.xor                         
+Epoch 0, Loss: 1.2193738304196795
+Epoch 1000, Loss: 0.13607794952566488
+Epoch 2000, Loss: 0.029654949330373555
+Epoch 3000, Loss: 0.011085021961452618
+Epoch 4000, Loss: 0.00614411595124679
+Epoch 5000, Loss: 0.004098822486061569
+Epoch 6000, Loss: 0.003024334504458357
+Epoch 7000, Loss: 0.0023743844881101025
+Epoch 8000, Loss: 0.0019434261038668197
+Epoch 9000, Loss: 0.0016387396363412962
+Predictions after training:
+[[0.00219952]
+ [0.94527828]
+ [0.94887519]
+ [0.00621378]]
+```
+
 ### Simulation
 
 The `simulate.py` script is designed to work with a single trade pair and blocks
