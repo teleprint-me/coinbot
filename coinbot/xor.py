@@ -18,7 +18,7 @@ network = [Dense(2, 3), Tanh(), Dense(3, 1), Tanh()]
 
 # Training parameters
 epochs = 10000
-learning_rate = 0.1
+learning_rate = 0.01
 
 # Training loop
 for epoch in range(epochs):

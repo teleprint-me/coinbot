@@ -29,7 +29,7 @@ class Layer:
 
 class Dense(Layer):
     def __init__(self, input_dim, output_dim):
-        self.weights = np.random.randn(input_dim, output_dim) * 0.01
+        self.weights = np.random.randn(input_dim, output_dim)
         self.biases = np.zeros((1, output_dim))
 
     def forward(self, input_data):
