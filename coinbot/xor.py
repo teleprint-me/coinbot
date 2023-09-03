@@ -5,9 +5,7 @@ coinbot/xor.py
 """
 import numpy as np
 
-from coinbot.model.dense import Dense
-from coinbot.model.error import mse, mse_prime
-from coinbot.model.tanh import Tanh
+from coinbot.model.dense import Dense, Tanh, mse, mse_prime
 
 # Input for XOR
 X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
