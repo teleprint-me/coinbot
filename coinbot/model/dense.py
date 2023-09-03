@@ -25,11 +25,11 @@ class Layer:
         ...
 
     @abstractmethod
-    def forward(self, input):
+    def forward(self, input_data):
         ...
 
     @abstractmethod
-    def backward(self, output_gradient, learning_rate):
+    def backward(self, output_gradient, learning_rate, lambda_):
         ...
 
 
@@ -53,14 +53,17 @@ class Dense(Layer):
 
         return input_gradient
 
+    def get_params(self):
+        return self.weights, self.biases
+
 
 class Activation(Layer):
     def __init__(self, activation, activation_prime):
         self.activation = activation
         self.activation_prime = activation_prime
 
-    def forward(self, input):
-        self.input = input
+    def forward(self, input_data):
+        self.input = input_data
         self.output = self.activation(self.input)
         return self.output
 
