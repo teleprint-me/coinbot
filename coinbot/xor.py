@@ -3,61 +3,49 @@ coinbot/xor.py
 
 "Hello, World!"
 """
+import os
+
 import numpy as np
 
-from coinbot.model.dense import Dense, Tanh, mse_prime, regularized_mse
+from coinbot import logging
+from coinbot.model.dense import Trainer
 
-# Input for XOR
+filename = "coinbot-xor.h5"
+
+# Input for XOR logic
 X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 
-# Output for XOR
-Y = np.array([[0], [1], [1], [0]])
+# Output for XOR logic
+y = np.array([[0], [1], [1], [0]])
 
 # Network architecture
-network = [Dense(2, 3), Tanh(), Dense(3, 1), Tanh()]
+architecture = [
+    {"type": "Dense", "input_dim": 2, "output_dim": 2},
+    {"type": "Tanh"},
+    {"type": "Dense", "input_dim": 2, "output_dim": 1},
+    {"type": "Tanh"},
+]
 
-# Training parameters
-epochs = 10000
-learning_rate = 0.15
-lambda_ = 1e-5  # L2 regularization
-tolerance = 1e-5  # Tolerance for early stopping
-prev_loss = None  # To store the previous loss
+# Initialize trainer
+trainer = Trainer(X, y, architecture, epochs=10000)
 
-# Training loop
-for epoch in range(epochs):
-    # Forward pass
-    output = X
-    for layer in network:
-        output = layer.forward(output)
+if os.path.exists(filename):
+    trainer.load_model(filename)
+    logging.info(f"{filename} exists. Loaded model and skipping training.")
+else:
+    # Perform training
+    trainer.run_training()
 
-    # Extract weights for regularization from the Dense layers
-    # and concatenate all the weights into one flat array
-    weights = [layer.weights for layer in network if isinstance(layer, Dense)]
-    all_weights = np.concatenate([w.flatten() for w in weights])
-    # Calculate loss with regularization
-    loss = regularized_mse(Y, output, all_weights, lambda_)
-
-    # Check for early stopping
-    if prev_loss is not None:
-        if abs(prev_loss - loss) < tolerance:
-            print(f"Early stopping on epoch {epoch}, Loss: {loss}")
-            break
-
-    # Backward pass
-    gradient = mse_prime(Y, output)
-    for layer in reversed(network):
-        gradient = layer.backward(gradient, learning_rate, lambda_)
-
-    # Print loss every 1000 epochs
-    if epoch % 1000 == 0:
-        print(f"Epoch {epoch}, Loss: {loss}")
-
-    prev_loss = loss  # Update the previous loss
-
-# Test the network
-output = X
-for layer in network:
-    output = layer.forward(output)
-
-print("Predictions after training:")
+# Test the trained model
+print("Running predictions:")
+output = trainer.run_prediction(X)
 print(output)
+
+metadata = trainer.get_metadata()
+print(metadata)
+
+# Save the model and check if it can be loaded
+if not os.path.exists(filename):
+    trainer.save_model(filename)
+else:
+    logging.info(f"{filename} exists. Prevented overwriting model.")
