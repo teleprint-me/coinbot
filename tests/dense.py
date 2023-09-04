@@ -1,10 +1,14 @@
 """
 tests/dense.py
 """
+import os
+
+import h5py
 import numpy as np
+import pytest
 from numpy.testing import assert_almost_equal
 
-from coinbot.model.dense import Dense, Tanh, mse, mse_prime, regularized_mse
+from coinbot.model.dense import Dense, Tanh, Trainer, mse, mse_prime, regularized_mse
 
 
 def test_initialization():
@@ -91,9 +95,9 @@ def test_backward_pass():
     loss_gradient = mse_prime(Y, output)
 
     # Backward pass
-    gradient = activation2.backward(loss_gradient, 0.1, 1e-5)
+    gradient = activation2.backward(loss_gradient, 0.1)
     gradient = dense2.backward(gradient, 0.1, 1e-5)
-    gradient = activation1.backward(gradient, 0.1, 1e-5)
+    gradient = activation1.backward(gradient, 0.1)
     gradient = dense1.backward(gradient, 0.1, 1e-5)
 
     # Assertions to verify the backward pass works as expected
@@ -107,3 +111,58 @@ def test_backward_pass():
     assert not np.array_equal(initial_biases1, dense1.biases)
     assert not np.array_equal(initial_weights2, dense2.weights)
     assert not np.array_equal(initial_biases2, dense2.biases)
+
+
+def test_trainer():
+    # Input for XOR logic
+    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+
+    # Output for XOR logic
+    y = np.array([[0], [1], [1], [0]])
+
+    # Network architecture
+    architecture = [
+        {"type": "Dense", "input_dim": 2, "output_dim": 2},
+        {"type": "Tanh"},
+        {"type": "Dense", "input_dim": 2, "output_dim": 1},
+        {"type": "Tanh"},
+    ]
+
+    # Initialize trainer
+    trainer = Trainer(X, y, architecture, epochs=10000)
+
+    # Perform training
+    trainer.run_training()
+
+    # Test the trained model
+    output = trainer.run_prediction(X)
+
+    # Thresholding to get binary output
+    output = np.where(output >= 0.5, 1, 0)
+
+    # Validate if the output matches expected values
+    assert_almost_equal(output, y, decimal=1)
+
+    # Save the model and check if it can be loaded
+    filename = "test-model.h5"
+    trainer.save_model(filename)
+
+    # Check if HDF5 file exists
+    assert os.path.exists(filename)
+
+    # Check if the saved model can be loaded
+    with h5py.File(filename, "r") as hf:
+        assert "layer_000" in hf.keys()
+
+    # Load the model using your function
+    trainer.load_model(filename)
+
+    # Re-run prediction to test if the loaded model works as expected
+    output = trainer.run_prediction(X)
+    output = np.where(output >= 0.5, 1, 0)
+
+    # Validate if the output matches expected values
+    assert_almost_equal(output, y, decimal=1)
+
+    # Cleanup: Remove the test model file
+    os.remove(filename)
