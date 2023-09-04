@@ -8,68 +8,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from coinbot import logging
 from coinbot.model.database import ValueAveragingDatabase
-from coinbot.model.dense import Dense, Tanh, mse_prime, regularized_mse
-
-
-def train_network(X, y):
-    # Input for DNN
-    X = np.array(X)
-
-    # Output for DNN
-    Y = np.array(y)
-
-    # Network architecture
-    network = [Dense(2, 3), Tanh(), Dense(3, 1), Tanh()]
-
-    # Decode the output back to original labels if needed
-    # ... (use inverse_transform() from label_encoder or onehot_encoder)
-    # Training parameters
-    epochs = 10000
-    learning_rate = 0.15
-    lambda_ = 1e-5  # L2 regularization
-    tolerance = 1e-5  # Tolerance for early stopping
-    prev_loss = None  # To store the previous loss
-
-    # Training loop
-    for epoch in range(epochs):
-        # Forward pass
-        output = X
-        for layer in network:
-            output = layer.forward(output)
-
-        # Extract weights for regularization from the Dense layers
-        # and concatenate all the weights into one flat array
-        weights = [layer.weights for layer in network if isinstance(layer, Dense)]
-        all_weights = np.concatenate([w.flatten() for w in weights])
-        # Calculate loss with regularization
-        loss = regularized_mse(Y, output, all_weights, lambda_)
-
-        # Check for early stopping
-        if prev_loss is not None:
-            if abs(prev_loss - loss) < tolerance:
-                logging.warning(f"Early stopping on epoch {epoch}, Loss: {loss}")
-                break
-
-        # Backward pass
-        gradient = mse_prime(Y, output)
-        for layer in reversed(network):
-            gradient = layer.backward(gradient, learning_rate, lambda_)
-
-        # Print loss every 1000 epochs
-        if epoch % 1000 == 0:
-            logging.info(f"Epoch {epoch}, Loss: {loss}")
-
-        prev_loss = loss  # Update the previous loss
-
-    return network
-
-
-# Save not just the output, but also the model's parameters (weights and biases)
-def save_model(network, filename):
-    model_parameters = [
-        layer.get_params() for layer in network if isinstance(layer, Dense)
-    ]
-    np.save(filename, model_parameters)
+from coinbot.model.dense import Trainer
 
 
 @click.command()
@@ -81,7 +20,7 @@ def save_model(network, filename):
 @click.argument(
     "output_id",
     type=click.Path(exists=True),
-    default="models/va.model.npy",
+    default="models/coinbot.dnn.npy",
 )
 @click.option(
     "--database",
@@ -135,14 +74,13 @@ def main(input_id, output_id, database, layers, parameters):
     # Your input and output
     X = df.drop(
         ["Current Target"], axis=1
-    ).to_numpy()  # assuming 'Current Target' is what you're trying to predict
-    y = df["Current Target"].to_numpy()
+    ).to_numpy()  # assuming 'Trade Amount' is what you're trying to predict
+    y = df["Trade Amount"].to_numpy()
 
     # Train the network
-    trained_model = train_network(X, y)
-
-    # Save the model
-    save_model(trained_model, output_id)
+    trainer = Trainer(X, y, architecture, epochs=5000, learning_rate=0.1)
+    trainer.run_training()
+    trainer.save_model(output_id)
 
     # Log completion
     logging.info(f"Model trained and saved at {output_id}")
