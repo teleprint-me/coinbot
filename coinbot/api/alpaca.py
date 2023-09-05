@@ -217,6 +217,126 @@ def get_clock() -> Dict[str, Union[str, bool]]:
     return get_json_data(response)
 
 
+def get_asset(symbol: str, live: bool = False) -> Dict[str, Any]:
+    """Get the asset model for a given Symbol or Asset ID.
+
+    Useful for retrieving the minimum order size, minimum trade increment, and price increment. Note that this will only return information for single asset.
+
+    Returns:
+        Dict: A dictionary containing information about the given asset.
+    """
+    endpoint = None
+
+    if live:
+        endpoint = f"{__live_trade__}/v2/assets/{symbol}"
+    else:
+        endpoint = f"{__paper_trade__}/v2/assets/{symbol}"
+
+    response = get(endpoint)
+
+    return get_json_data(response)
+
+
+def get_current_asset_value(symbol: str, live: bool = True) -> Dict[str, float]:
+    """Get the current value and quantity of a specified asset.
+
+    Retrieves the current price, quantity, and market value of a specified asset from the positions API.
+
+    Args:
+        symbol (str): The symbol of the asset (e.g., "AAPL", "BTC/USD").
+        live (bool, optional): Whether to use live trading data. Default is True.
+
+    Returns:
+        Dict[str, float]: A dictionary containing current price, quantity, and market value.
+    """
+    if "/" in symbol:
+        products = symbol.split("/")
+        symbol = "".join(products)
+
+    endpoint = None
+
+    if live:
+        endpoint = f"{__live_trade__}/v2/positions"
+    else:
+        endpoint = f"{__paper_trade__}/v2/positions"
+
+    response = get(endpoint)
+    positions = get_json_data(response)
+
+    for position in positions:
+        if position["symbol"] == symbol:
+            return {
+                "current_price": float(position["current_price"]),
+                "qty": float(position["qty"]),
+                "market_value": float(position["market_value"]),
+            }
+
+    return {}
+
+
+def get_latest_crypto_quote(symbol: str) -> float:
+    """Get the latest quote for a cryptocurrency.
+
+    Retrieves the latest bid price for a specific cryptocurrency symbol from the crypto quote API.
+
+    Args:
+        symbol (str): The symbol of the cryptocurrency (e.g., "BTC/USD").
+
+    Returns:
+        float: The latest bid price for the cryptocurrency.
+    """
+    url = f"{__live_data__}/v1beta3/crypto/us/latest/quotes"
+    response = get(url, params={"symbols": symbol})
+    data = get_json_data(response)
+    # 'bp' is the last bid price
+    return float(data["quotes"][symbol]["bp"])
+
+
+def get_latest_stock_quote(symbol: str, feed: str = "sip") -> float:
+    """Get the latest quote for a stock.
+
+    Retrieves the latest bid price for a specific stock symbol from the stock quote API.
+
+    Args:
+        symbol (str): The symbol of the stock (e.g., "AAPL").
+        feed (str, optional): The data feed to use. Default is "sip".
+
+    Returns:
+        float: The latest bid price for the stock.
+    """
+    url = f"{__live_data__}/v2/stocks/quotes/latest"
+    response = get(url, params={"symbols": symbol, "feed": feed})
+    data = get_json_data(response)
+    # 'bp' is the last bid price
+    return float(data["quotes"]["quotes"][symbol]["bp"])
+
+
+def get_current_market_price(
+    symbol: str, feed: str = "sip", asset_class: str = "stock"
+) -> float:
+    """Get the current market price of an asset.
+
+    Fetches and returns the current market price of an asset, either a stock or cryptocurrency.
+
+    Args:
+        symbol (str): The symbol of the asset (e.g., "AAPL", "BTC/USD").
+        feed (str, optional): The data feed to use. Default is "sip".
+        asset_class (str, optional): The class of the asset ("stock" or "crypto"). Default is "stock".
+
+    Returns:
+        float: The current market price of the asset.
+
+    Raises:
+        ValueError: If an unsupported asset class is provided.
+    """
+    if asset_class == "crypto":
+        return get_latest_crypto_quote(symbol)
+    elif asset_class == "stock":
+        return get_latest_stock_quote(symbol, feed)
+    else:
+        raise ValueError(f"Unsupported asset class: {asset_class}")
+
+
 def get_crypto_candlesticks(loc: str, params: Dict[str, Any]) -> Dict[str, List[Dict]]:
     """Fetches historical crypto candlestick data from the Alpaca API.
 
@@ -292,7 +412,12 @@ def create_order(
     }
 
     # Choose the correct endpoint based on the `live` flag
-    endpoint = f"{__live_trade__}/v2/orders" if live else f"{__paper_trade__}/v2/orders"
+    endpoint = None
+
+    if live:
+        endpoint = f"{__live_trade__}/v2/orders"
+    else:
+        endpoint = f"{__paper_trade__}/v2/orders"
 
     # Execute the POST request
     response = post(endpoint, json=payload)
