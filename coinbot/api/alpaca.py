@@ -1,21 +1,19 @@
 """
 coinbot/api/alpaca.py
 """
+import os
 import time
 from collections import defaultdict
 from json import JSONDecodeError
-from os import getenv
 from typing import Any, Dict, Generator, List, Optional, Union
 
+import dotenv
 import requests
-from dotenv import load_dotenv
 from requests import RequestException, Response
 from requests.auth import AuthBase
 from requests.models import PreparedRequest
 
 from coinbot import __agent__, __source__, __version__, logging
-
-load_dotenv()
 
 # Rate limit of API requests in seconds.
 # Basic is free and allows 200 API calls/min
@@ -96,19 +94,22 @@ class Auth(AuthBase):
         api: Instance of the API class, if not provided, a default instance is created.
     """
 
-    def __init__(self):
+    def __init__(self, path: str = ".env"):
         """Create an instance of the Auth class.
 
         Args:
             api: Instance of the API class, if not provided, a default instance is created.
         """
+        if not dotenv.load_dotenv(path):
+            raise ValueError(f"EnvironmentError: Failed to load {path}")
 
-        self.key: Optional[str] = (
-            getenv("ALPACA_API_KEY") or getenv("PAPER_ALPACA_API_KEY") or ""
+        key = os.getenv("ALPACA_API_KEY") or os.getenv("PAPER_ALPACA_API_KEY") or ""
+        secret = (
+            os.getenv("ALPACA_API_SECRET") or os.getenv("PAPER_ALPACA_API_SECRET") or ""
         )
-        self.secret: Optional[str] = (
-            getenv("ALPACA_API_SECRET") or getenv("PAPER_ALPACA_API_SECRET") or ""
-        )
+
+        self.key: str = key
+        self.secret: str = secret
 
     def __call__(self, request: PreparedRequest) -> PreparedRequest:
         """Return the prepared request with updated headers.
