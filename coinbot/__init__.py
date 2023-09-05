@@ -1,5 +1,5 @@
 """
-CoinBot: Automated Trading with Compound Interest Strategy
+CoinBot: Automated Trading with Compound Interest
 Copyright (C) 2023  Austin Berrio
 
 This program is free software: you can redistribute it and/or modify
@@ -37,4 +37,4 @@ __disclaimer__ = (
 # Set logging configuration
 # NOTE: Can be overridden on a script-by-script basis
 logging_format = "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s"
-logging.basicConfig(format=logging_format, level=logging.INFO)
+logging.basicConfig(format=logging_format, level=logging.DEBUG)
