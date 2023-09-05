@@ -8,7 +8,7 @@ models/*.h5
 !models/coinbot-xor.h5
 
 # local prompts
-docs/summary
+docs/prompts
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
