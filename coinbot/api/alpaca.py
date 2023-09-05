@@ -3,8 +3,9 @@ coinbot/api/alpaca.py
 """
 import time
 from collections import defaultdict
+from json import JSONDecodeError
 from os import getenv
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import requests
 from dotenv import load_dotenv
@@ -117,6 +118,66 @@ def get(url: str, params: Optional[Dict] = None) -> Response:
         raise RequestException(error)
 
 
+def post(url: str, json: Optional[Dict] = None) -> Response:
+    """Perform a POST request to the specified API path.
+
+    Args:
+        path: The API endpoint to be requested.
+        json: (optional) JSON payload to be sent with the request.
+
+    Returns: The response of the POST request.
+    """
+
+    time.sleep(__limit__)
+
+    try:
+        response = requests.post(
+            url=url,
+            json=json,
+            auth=__auth__,
+            timeout=__timeout__,
+        )
+
+        if response.status_code != 200:
+            error_message = response.json()["message"]
+
+        if response.status_code == 400:
+            raise RequestException(f"400 Bad Request: {error_message}")
+        elif response.status_code == 401:
+            raise RequestException(f"401 Unauthorized: {error_message}.")
+        elif response.status_code == 403:
+            raise RequestException(f"403 Forbidden: {error_message}.")
+        else:
+            return response
+    except RequestException as error:
+        raise RequestException(error)
+
+
+def get_clock() -> Dict[str, Union[str, bool]]:
+    """
+    Returns the market clock.
+
+    The clock API serves the current market timestamp, whether or not the market is currently open, as well as the times of the next market open and close.
+
+    Keys are timestamp, is_open, next_open, and next_close.
+
+    Returns:
+        Dict: A dictionary representing whether the market is open or closed.
+    """
+    # NOTE: get uses time.sleep(__limit__) which is set for Alpacas API
+    response = get(f"{__alpaca__}/v2/clock")
+
+    if response.status_code != 200:
+        error_message = response.json()["message"]
+        raise RequestException(f"Unexpected Error: {error_message}")
+
+    try:
+        return response.json()
+    except JSONDecodeError as message:
+        logging.error(message)
+        raise RequestException(f"Error {response.status_code}: {response.text}")
+
+
 def get_crypto_candlesticks(loc: str, params: Dict[str, Any]) -> Dict[str, List[Dict]]:
     """
     Fetches historical crypto candlestick data from the Alpaca API.
@@ -183,3 +244,53 @@ def page_crypto_candlesticks(loc: str, params: Dict[str, Any]) -> Dict[str, List
         params["page_token"] = next_page_token
 
     return dict(all_bars)  # Convert defaultdict back to a regular dictionary.
+
+
+def create_order(
+    symbol: str,
+    quantity: float,
+    side: str,
+    type_: str,
+    time_in_force: str,
+    live: bool = False,
+) -> Dict:
+    """
+    Create an Order
+
+    Places a new order for the given account. An order request may be rejected if the account is not authorized for trading, or if the tradable balance is insufficient to fill the order.
+
+    Args:
+        live (bool): Whether to execute the trade in a live environment. Defaults to False for paper trading.
+
+    Returns:
+        Dict: Response from the Alpaca API.
+    """
+    # Prepare the payload
+    payload = {
+        "symbol": symbol,
+        "qty": quantity,
+        "side": side,
+        "type": type_,
+        "time_in_force": time_in_force,
+    }
+
+    # Choose the correct endpoint based on the `live` flag
+    endpoint = f"{__alpaca__}/v2/orders" if live else f"{__paper__}/v2/orders"
+
+    # Execute the POST request
+    response = post(endpoint, json=payload)
+
+    try:
+        json_data = response.json()
+
+        if response.status_code != 200:
+            error_message = json_data.get("message", "Unknown error")
+            raise RequestException(
+                f"Unexpected Error ({response.status_code}): {error_message}"
+            )
+
+        logging.info(f"Successfully created order: {json_data}")
+        return json_data
+    except JSONDecodeError as message:
+        logging.error(f"JSONDecodeError: {message}")
+        raise RequestException(f"Error {response.status_code}: {response.text}")
