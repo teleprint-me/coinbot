@@ -3,6 +3,13 @@
 *.sqlite
 *.sqlite3
 
+# local models
+models/*.h5
+!models/coinbot-xor.h5
+
+# local prompts
+docs/summary
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
