@@ -33,7 +33,8 @@ class AlpacaBroker(AlpacaREST):
         """
         Get the market clock.
 
-        The clock API serves the current market timestamp, whether or not the market is currently open, as well as the times of the next market open and close.
+        The clock API serves the current market timestamp, whether or not the market is currently open,
+        as well as the times of the next market open and close.
 
         Args:
             live (bool, optional): Whether to use live trading data. Default is True.
@@ -49,3 +50,32 @@ class AlpacaBroker(AlpacaREST):
         endpoint = self.endpoint.build("broker", "/v2/clock", live)
         response = self.requester.get(endpoint)
         return self._extract_json(response)
+
+    def get_amount_from_orders(self, symbol: str, live: bool = False) -> float:
+        """
+        Get the total quantity of a specified asset from closed and filled orders.
+
+        Retrieves the total filled quantity of a specified asset from closed orders.
+
+        Args:
+            symbol (str): The symbol of the asset (e.g., "AAPL", "BTC/USD").
+            live (bool, optional): Whether to use live trading data. Default is False.
+
+        Returns:
+            float: The total filled quantity of the asset from closed orders.
+        """
+        total_qty = 0.0
+        endpoint = self.endpoint.build("broker", "/v2/orders", live=live)
+        params = {
+            "status": "closed",
+            "symbol": symbol,
+        }
+
+        response = self.requester.get(endpoint, params=params)
+        orders = self._extract_json(response)
+
+        for order in orders:
+            if order["symbol"] == symbol and order["status"] == "filled":
+                total_qty += float(order["filled_qty"])
+
+        return total_qty
