@@ -31,6 +31,13 @@ trader = AlpacaTrader(auth)
 from coinbot.api.alpaca.auth import AlpacaAuth
 from coinbot.api.alpaca.broker import AlpacaBroker
 from coinbot.api.alpaca.data import AlpacaMarketData
+from coinbot.api.alpaca.request import AlpacaRequest
 from coinbot.api.alpaca.trade import AlpacaTrader
 
-__all__ = ["AlpacaAuth", "AlpacaBroker", "AlpacaMarketData", "AlpacaTrader"]
+__all__ = [
+    "AlpacaAuth",
+    "AlpacaBroker",
+    "AlpacaMarketData",
+    "AlpacaTrader",
+    "AlpacaRequest",
+]
