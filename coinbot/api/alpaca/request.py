@@ -33,7 +33,7 @@ class AlpacaRequest:
                 Defaults to 30 seconds.
         """
         # NOTE: Use sane defaults for authentication if None are provided
-        self.__auth = auth or AlpacaAuth(".env")
+        self.__auth = auth or AlpacaAuth(path=".env")
         # NOTE: Rate limit of API requests in seconds.
         # Plus is $99/mo and allows 10,000 API calls/min
         # Basic is free and allows 200 API calls/min
