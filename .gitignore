@@ -2,6 +2,7 @@
 *.db
 *.sqlite
 *.sqlite3
+/scripts
 
 # local models
 models/*.h5
