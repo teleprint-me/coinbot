@@ -110,7 +110,7 @@ class AlpacaMarketData(AlpacaREST):
         self,
         loc: str,
         params: Dict[str, Any],
-        live: bool = True,
+        live: bool = False,
     ) -> Dict[str, List[Dict]]:
         """
         Fetch historical crypto candlestick data from the Alpaca API.
@@ -118,7 +118,7 @@ class AlpacaMarketData(AlpacaREST):
         Args:
             loc (str): Crypto location, e.g., "us".
             params (dict[str, Any]): Parameters for the API request.
-            live (bool, optional): Whether to use live trading data. Default is True.
+            live (bool, optional): Whether to use live trading data. Default is False.
 
         Returns:
             Dict[str, List[Dict]]: Historical candlestick data for specified symbols.

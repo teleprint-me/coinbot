@@ -29,7 +29,7 @@ class AlpacaBroker(AlpacaREST):
         """
         super().__init__(auth, rate_limit, timeout)
 
-    def get_clock(self, live: bool = True) -> Dict[str, Union[str, bool]]:
+    def get_clock(self, live: bool = False) -> Dict[str, Union[str, bool]]:
         """
         Get the market clock.
 
@@ -47,7 +47,7 @@ class AlpacaBroker(AlpacaREST):
                 'next_open' is the timestamp of the next market open.
                 'next_close' is the timestamp of the next market close.
         """
-        endpoint = self.endpoint.build("broker", "/v2/clock", live)
+        endpoint = self.endpoint.build("broker", "/v1/clock", live)
         response = self.requester.get(endpoint)
         return self._extract_json(response)
 
