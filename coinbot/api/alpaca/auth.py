@@ -14,8 +14,10 @@ usage:
     api_key = auth.key
     api_secret = auth.secret
 """
+import base64
 import os
-from typing import Dict, Optional
+from typing import Optional
+from urllib.parse import urlparse
 
 import dotenv
 from requests.auth import AuthBase
@@ -101,25 +103,49 @@ class AlpacaAuth(AuthBase):
         Returns:
             PreparedRequest: The same request with updated headers.
         """
-        # Sign and authenticate payload.
-        header: Dict = {
+        header = {}
+        parsed_url = urlparse(request.url)
+        sub_domain = parsed_url.netloc.split(".")[0]
+
+        logging.debug(f"Auth Url: {request.url}")
+        logging.debug(f"Auth Path: {request.path_url}")
+
+        # Define common headers that are shared across all API versions and types
+        common_headers = {
             "User-Agent": f"{__agent__}/{__version__} {__source__}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+        # Define default headers for most subdomains, including authentication keys
+        default_headers = {
+            **common_headers,
             "APCA-API-KEY-ID": self.key,
             "APCA-API-SECRET-KEY": self.secret,
-            "Accept": "application/json",
-            "Content-Type": "application/json",
         }
 
-        # Censor sensitive information for debugging
-        censored_header: Dict = {
-            "User-Agent": f"{__agent__}/{__version__} {__source__}",
-            "APCA-API-KEY-ID": f"****{self.key[-4:]}",
-            "APCA-API-SECRET-KEY": f"****{self.secret[-4:]}",
-            "Accept": "application/json",
-            "Content-Type": "application/json",
+        # Create a dictionary that maps subdomains to their respective headers
+        # "broker-api" requires special handling with Basic Authorization
+        header_configs = {
+            "broker-api": {
+                **common_headers,
+                "Authorization": f"Basic {base64.b64encode(f'{self.key}:{self.secret}'.encode('utf-8')).decode('utf-8')}",
+            },
+            "api": default_headers,
+            "paper-api": default_headers,
+            "data": default_headers,
         }
+
+        # Retrieve the appropriate headers for the subdomain or use default headers
+        header = header_configs.get(sub_domain, default_headers)
 
         # Log censored information if debug is enabled
+        censored_header = {
+            k: "****" + v[-4:]
+            if "KEY" in k or "SECRET" in k or "Authorization" in k
+            else v
+            for k, v in header.items()
+        }
         logging.debug(f"Censored Alpaca Header: {censored_header}")
 
         # Inject payload
