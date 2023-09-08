@@ -29,6 +29,22 @@ class AlpacaTrader(AlpacaREST):
         """
         super().__init__(auth, rate_limit, timeout)
 
+    def get_clock(self, live: bool = False) -> Dict[str, Any]:
+        """
+        Get the current market clock information.
+
+        Retrieves information about the current market time, whether it's open, and the next open/close times.
+
+        Args:
+            live (bool, optional): Whether to use live trading data. Default is False.
+
+        Returns:
+            Dict[str, Any]: Information about the market clock.
+        """
+        endpoint = self.endpoint.build("trade", "/v2/clock", live)
+        response = self.requester.get(endpoint)
+        return self._extract_json(response)
+
     def get_asset(self, symbol: str, live: bool = False) -> Dict[str, Any]:
         """
         Get asset information.
