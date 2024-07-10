@@ -37,4 +37,4 @@ __disclaimer__ = (
 # Set logging configuration
 # NOTE: Can be overridden on a script-by-script basis
 logging_format = "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s"
-logging.basicConfig(format=logging_format, level=logging.DEBUG)
+logging.basicConfig(format=logging_format, level=logging.ERROR)
