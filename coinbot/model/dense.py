@@ -23,6 +23,22 @@ def regularized_mse(y_true, y_pred, weights, lambda_):
     return mse_loss + l2_penalty
 
 
+def rms(y_true, y_pred):
+    return np.sqrt(np.mean(np.square(y_true - y_pred)))
+
+
+def rms_prime(y_true, y_pred):
+    return (y_pred - y_true) / (
+        y_true.size * np.sqrt(np.mean(np.square(y_true - y_pred)))
+    )
+
+
+def regularized_rms(y_true, y_pred, weights, lambda_):
+    rms_loss = np.sqrt(np.mean(np.square(y_true - y_pred)))
+    l2_penalty = lambda_ * np.sum(np.square(weights))
+    return rms_loss + l2_penalty
+
+
 class Layer(ABC):
     def __init__(self):
         ...
@@ -37,27 +53,28 @@ class Layer(ABC):
 
 
 class Dense(Layer):
-    def __init__(self, input_dim, output_dim, seed=None, activation_fn="tanh"):
+    def __init__(self, input_dim, output_dim, seed=None, activation_fn=None):
         self.input_dim = input_dim
         self.output_dim = output_dim
 
         if seed is not None:
             np.random.seed(seed)
 
-        if activation_fn == "relu":
-            # He Initialization - Var(W) = 1/n
-            self.weights = np.random.randn(input_dim, output_dim) * np.sqrt(
-                2.0 / input_dim
-            )
-        elif activation_fn == "tanh" or activation_fn == "sigmoid":
-            # Xavier/Glorot Initialization - Var(W) = 2/n
-            self.weights = np.random.randn(input_dim, output_dim) * np.sqrt(
-                1.0 / input_dim
-            )
-        else:  # Fallback to Random Initialization
-            self.weights = np.random.randn(input_dim, output_dim)
-
+        self._initialize_weights(activation_fn)
         self.biases = np.zeros((1, output_dim))
+
+    def _initialize_weights(self, activation_fn):
+        if activation_fn == "relu":  # He Initialization - Var(W) = 1/n
+            self.weights = np.random.randn(self.input_dim, self.output_dim) * np.sqrt(
+                2.0 / self.input_dim
+            )
+        elif activation_fn in ["tanh", "sigmoid"]:
+            # Xavier/Glorot Initialization - Var(W) = 2/n
+            self.weights = np.random.randn(self.input_dim, self.output_dim) * np.sqrt(
+                1.0 / self.input_dim
+            )
+        else:  # Fallback to random initialization
+            self.weights = np.random.randn(self.input_dim, self.output_dim)
 
     def forward(self, input_data):
         self.input = input_data
@@ -94,6 +111,33 @@ class Activation(Layer):
 
     def backward(self, output_gradient, learning_rate):
         return np.multiply(output_gradient, self.activation_prime(self.input))
+
+
+class Sigmoid(Activation):
+    def __init__(self):
+        super().__init__(self.sigmoid, self.sigmoid_prime)
+
+    @staticmethod
+    def sigmoid(x):
+        return 1 / (1 + np.exp(-x))
+
+    @staticmethod
+    def sigmoid_prime(x):
+        s = 1 / (1 + np.exp(-x))
+        return s * (1 - s)
+
+
+class ReLU(Activation):
+    def __init__(self):
+        super().__init__(self.relu, self.relu_prime)
+
+    @staticmethod
+    def relu(x):
+        return np.maximum(0, x)
+
+    @staticmethod
+    def relu_prime(x):
+        return (x > 0).astype(float)
 
 
 class Tanh(Activation):
