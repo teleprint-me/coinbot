@@ -5,21 +5,20 @@ import hashlib
 import hmac
 import time
 from datetime import datetime as dt
+from json import JSONDecodeError
 from os import getenv
 from typing import Any, Dict, List, Optional, Union
 
 # NOTE: Always generate uuid4 for privacy!
 from uuid import uuid4
 
+import dotenv
 import requests
-from dotenv import load_dotenv
-from requests import RequestException
+from requests import RequestException, Response
 from requests.auth import AuthBase
 from requests.models import PreparedRequest
 
-from coinbot import __agent__, __source__, __version__
-
-load_dotenv()
+from coinbot import __agent__, __source__, __version__, logging
 
 # Rate limit of API requests in seconds.
 # Calculated as 1 / (n requests_per_hour / m seconds_per_hour)
@@ -46,15 +45,32 @@ class Auth(AuthBase):
         api: Instance of the API class, if not provided, a default instance is created.
     """
 
-    def __init__(self):
+    def __init__(self, path: str = ".env"):
         """Create an instance of the Auth class.
 
         Args:
             api: Instance of the API class, if not provided, a default instance is created.
         """
 
+        # Try to load the .env file
+        env_loaded = dotenv.load_dotenv(path)
+
+        if not env_loaded:
+            # Log a warning but continue execution
+            print(f"Warning: Failed to load {path}")
+
+        # Determine which keys to use, preferring Private over Public
         self.key: Optional[str] = getenv("COINBASE_API_KEY") or ""
         self.secret: Optional[str] = getenv("COINBASE_API_SECRET") or ""
+
+        if not self.key or not self.secret:
+            logging.warning(
+                "An issue with Key and/or Secret was detected. "
+                "Some functionalities may be restricted."
+            )
+
+        logging.debug(f"Coinbase API Key: ****{self.key[-4:]}")
+        logging.debug(f"Coinbase API Secret: ****{self.secret[-4:]}")
 
     def __call__(self, request: PreparedRequest) -> PreparedRequest:
         """Return the prepared request with updated headers.
@@ -67,10 +83,13 @@ class Auth(AuthBase):
         """
 
         # Create payload.
+        parts: list[str] = request.path_url.split("?")
+        logging.debug(f"Parts: {parts}")
         timestamp: str = str(int(time.time()))
-        body: str = "" if not request.body else request.body.decode("utf-8")
         method: str = "" if not request.method else request.method.upper()
+        body: str = "" if not request.body else request.body.decode("utf-8")
         message: str = f"{timestamp}{method}{request.path_url}{body}"
+        logging.debug(f"Message: {message}")
 
         # Create signature.
         key = self.secret.encode("ascii")
@@ -87,8 +106,23 @@ class Auth(AuthBase):
             "Content-Type": "application/json",
         }
 
+        # Censor sensitive information for debugging
+        censored_header: Dict = {
+            "User-Agent": f"{__agent__}/{__version__} {__source__}",
+            "CB-ACCESS-KEY": f"****{self.key[-4:]}",
+            "CB-ACCESS-SIGN": f"****{signature[-4:]}",
+            "CB-ACCESS-TIMESTAMP": timestamp,
+            "CB-VERSION": "2021-08-03",
+            "Content-Type": "application/json",
+        }
+
+        # Log censored information if debug is enabled
+        logging.debug(f"Censored Coinbase Header: {censored_header}")
+
         # Inject payload
         request.headers.update(header)
+
+        logging.debug(f"Request: {request}")
 
         return request
 
@@ -96,12 +130,12 @@ class Auth(AuthBase):
 __auth__ = Auth()
 
 
-def get(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
+def get(url: str, params: Optional[Dict] = None) -> Response:
     """Perform a GET request to the specified API path.
 
     Args:
         path: The API endpoint to be requested.
-        data: (optional) Query parameters to be passed with the request.
+        params: (optional) Query parameters to be passed with the request.
 
     Returns:
         The response of the GET request.
@@ -110,31 +144,25 @@ def get(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
     time.sleep(__limit__)
 
     try:
+        logging.debug(f"Url: {url}")
+        logging.debug(f"Params: {params}")
+        logging.debug(f"Auth: {isinstance(__auth__, Auth)}")
+        logging.debug(f"Timeout: {__timeout__}")
+
         response = requests.get(
             url=url,
-            params=data,
+            params=params,
             auth=__auth__,
             timeout=__timeout__,
         )
 
-        if response.status_code == 401:
-            raise RequestException(
-                "401 Unauthorized: Client failed to authenticate the request."
-            )
-        elif response.status_code == 403:
-            raise RequestException(
-                "403 Forbidden: Client failed to authorize the necessary scope."
-            )
-        elif "errors" in response and "message" in response["errors"]:
-            raise RequestException(response["errors"]["message"])
-        elif "error" in response and "error_description" in response["error"]:
-            raise RequestException(response["error"]["error_description"])
-        elif "error" in response and "message" in response["error"]:
-            raise RequestException(response["error"]["message"])
-        else:
-            return response
-    except RequestException as error:
-        raise RequestException(f"Error retrieving GET request: {error}")
+        if response.status_code != 200:
+            raise RequestException(f"Error ({response.status_code}): {response.json()}")
+
+        return response
+    except (RequestException, JSONDecodeError) as message:
+        logging.error(f"GET Request Error: {message}")
+        raise RequestException(f"Error ({response.status_code}): {response.text}")
 
 
 def post(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
@@ -157,24 +185,13 @@ def post(url: str, data: Optional[Dict] = None) -> Dict[str, Any]:
             timeout=__timeout__,
         )
 
-        if response.status_code == 401:
-            raise RequestException(
-                "401 Unauthorized: Client failed to authenticate the request."
-            )
-        elif response.status_code == 403:
-            raise RequestException(
-                "403 Forbidden: Client failed to authorize the necessary scope."
-            )
-        elif "errors" in response and "message" in response["errors"][0]:
-            raise RequestException(response["errors"][0]["message"])
-        elif "error" in response and "error_description" in response["error"]:
-            raise RequestException(response["error"]["error_description"])
-        elif "error" in response and "message" in response["error"]:
-            raise RequestException(response["error"]["message"])
-        else:
-            return response
-    except RequestException as error:
-        raise RequestException(f"Error retrieving POST request: {error}")
+        if response.status_code != 200:
+            raise RequestException(f"Error ({response.status_code}): {response.json()}")
+
+        return response
+    except (RequestException, JSONDecodeError) as message:
+        logging.error(f"GET Request Error: {message}")
+        raise RequestException(f"Error ({response.status_code}): {response.text}")
 
 
 def get_candlestick_data(
