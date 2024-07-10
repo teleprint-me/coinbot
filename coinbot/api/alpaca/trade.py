@@ -1,7 +1,7 @@
 """
 coinbot/api/alpaca/trade.py
 """
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from coinbot.api.alpaca.auth import AlpacaAuth
 from coinbot.api.alpaca.rest import AlpacaREST
@@ -45,6 +45,35 @@ class AlpacaTrader(AlpacaREST):
         response = self.requester.get(endpoint)
         return self._extract_json(response)
 
+    def get_account(self, live: bool = False) -> Dict[str, Any]:
+        """Returns the account associated with the API key."""
+        endpoint = self.endpoint.build("trade", "/v2/account", live)
+        response = self.requester.get(endpoint)
+        return self._extract_json(response)
+
+    def get_all_orders(self, live: bool = False) -> List[Dict[str, Any]]:
+        """Retrieves a list of orders for the account, filtered by the supplied query parameters."""
+        endpoint = self.endpoint.build("trade", "/v2/orders", live)
+        response = self.requester.get(endpoint)
+        return self._extract_json(response)
+
+    def get_order(
+        self, order_id: str, nested: bool = False, live: bool = False
+    ) -> Dict[str, Any]:
+        """Retrieves a single order for the given order_id."""
+        endpoint = self.endpoint.build("trade", f"/v2/orders/{order_id}", live)
+        response = self.requester.get(endpoint, params={"nested": nested})
+        return self._extract_json(response)
+
+    def get_all_assets(
+        self,
+        params: Optional[dict[str, Any]] = None,
+        live: bool = False,
+    ) -> List[Dict[str, Any]]:
+        endpoint = self.endpoint.build("trade", "/v2/assets", live)
+        response = self.requester.get(endpoint, params)
+        return self._extract_json(response)
+
     def get_asset(self, symbol: str, live: bool = False) -> Dict[str, Any]:
         """
         Get asset information.
@@ -59,6 +88,20 @@ class AlpacaTrader(AlpacaREST):
             Dict[str, Any]: Information about the asset, including details like name, exchange, and status.
         """
         endpoint = self.endpoint.build("trade", f"/v2/assets/{symbol}", live)
+        response = self.requester.get(endpoint)
+        return self._extract_json(response)
+
+    def get_all_positions(self, live: bool = False) -> List[Dict[str, float]]:
+        endpoint = self.endpoint.build("trade", "/v2/positions", live)
+        response = self.requester.get(endpoint)
+        return self._extract_json(response)
+
+    def get_position(self, symbol: str, live: bool = False) -> Dict[str, Any]:
+        # NOTE: # Raises a 422 Error if asset does not exist
+        if "/" in symbol:
+            products = symbol.split("/")
+            symbol = "".join(products)
+        endpoint = self.endpoint.build("trade", f"/v2/positions/{symbol}", live)
         response = self.requester.get(endpoint)
         return self._extract_json(response)
 
@@ -88,9 +131,9 @@ class AlpacaTrader(AlpacaREST):
         for position in positions:
             if position["symbol"] == symbol:
                 return {
-                    "current_price": float(position["current_price"]),
-                    "qty": float(position["qty"]),
-                    "market_value": float(position["market_value"]),
+                    "market_price": float(position["current_price"]),
+                    "total_quantity": float(position["qty"]),
+                    "current_value": float(position["market_value"]),
                 }
 
         return {}
