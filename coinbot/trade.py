@@ -7,8 +7,8 @@ from typing import Any, Dict, List
 import click
 
 from coinbot import logging
-from coinbot.api import alpaca
-from coinbot.model.database import ValueAveragingDatabase
+from coinbot.api.alpaca import AlpacaAuth, AlpacaMarketData, AlpacaTrader
+from coinbot.db import ValueAveragingDatabase
 
 
 @click.command()
@@ -61,9 +61,9 @@ from coinbot.model.database import ValueAveragingDatabase
     help="The time step between each trade. Default is 1.",
 )
 @click.option(
-    "--url",
-    type=click.STRING,
-    default="https://paper-api.alpaca.markets/v2/orders",
+    "--live",
+    type=click.BOOL,
+    default=False,
     help="The API URL for paper or live trading. Default is paper.",
 )
 @click.option(
@@ -73,28 +73,29 @@ from coinbot.model.database import ValueAveragingDatabase
     help="The database file path. Default is value_averaging.sqlite.",
 )
 def main():
-    # NOTE: We can use alpaca.get and alpaca.post for making authenticated requests
-    # They're just special wrappers handling the defaults for us
-    # def get(url: str, params: Optional[Dict] = None) -> Response:
-    #     """Perform a GET request to the specified API path.
-    #
-    #     Args:
-    #         path: The API endpoint to be requested.
-    #         params: (optional) Query parameters to be passed with the request.
-    #
-    #     Returns:
-    #         The response of the GET request.
-    #     """
-    # def post(url: str, json: Optional[Dict] = None) -> Response:
-    #     """Perform a POST request to the specified API path.
+    def calculate_target_value(config):
+        P = config["initial_principal"]
+        r = config["annual_interest_rate"]
+        n = config["compounding_frequency"]
+        i = config["current_interval"]
 
-    #     Args:
-    #         path: The API endpoint to be requested.
-    #         json: (optional) JSON payload to be sent with the request.
+        T = P * i * (1 + (r / n)) ** i
+        return T
 
-    #     Returns: The response of the POST request.
-    #     """
-    # NOTE: Conflicts can occur if the assets table exists as a simulation.
+    with open("config.json", "r") as f:
+        config = json.load(f)
+
+    auth = AlpacaAuth(path=".env")
+    trader = AlpacaTrader(auth=auth)
+    marketer = AlpacaMarketData(auth=auth)
+
+    result = trader.get_current_asset_value("BTC/USD")
+    pprint(result)
+
+    # NOTE: Table Collisions
+    # Collisions can occur if the assets table exists as a simulation.
+    # NOTE: State Management
+    # Given you're working with real-time data, you'll need to update current_interval, market_price, and current_value at each trading action. If you're using a database with Peewee, these could be fields in your database model, or you could update them directly in your JSON config for a quick-and-dirty approach.
     # asset_name = symbols.split("/")[0]
     # va = ValueAveraging(
     #     asset_name=asset_name,

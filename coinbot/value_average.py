@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 from iso8601 import parse_date
 
 from coinbot import logging
-from coinbase.db import ValueAveragingDatabase
+from coinbot.db import ValueAveragingDatabase
 
 
 class ValueAveraging:
