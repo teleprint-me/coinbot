@@ -1,6 +1,16 @@
 """
 coinbot/model/value_average.py
+
+Value Averaging is similar to Cost Averaging. We set a Principal Amount and then
+purchase an asset with the Principal Amount based on a set Interval and Growth
+Rate.
+
+We need to define our columns: Datetime, Market Price, Current Target, Current
+Value, Trade Amount, Total Trade Amount, Order Size, Total Order Size, and
+Interval. This will allow us to keep track of the relevant data and show the
+evaluated expressions as its set of results.
 """
+
 from decimal import ROUND_HALF_EVEN, Decimal
 from sqlite3 import IntegrityError, OperationalError
 from typing import Dict, List, Optional
