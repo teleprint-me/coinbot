@@ -12,7 +12,7 @@ class Auth:
     def __init__(self, api: API):
         self.api = api
 
-    def header(self, method: str, path: str, timeout: int = 30) -> dict:
+    def header(self, method: str, path: str, timeout: int = 30) -> dict[str, str]:
         token = generate_jwt(
             JwtOptions(
                 api_key_id=self.api.key,
