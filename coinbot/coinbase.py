@@ -5,7 +5,7 @@ coinbot/coinbase.py
 import logging
 import os
 from datetime import datetime
-from typing import Optional
+from time import sleep
 
 import dotenv
 import requests
@@ -47,9 +47,10 @@ class Auth:
             )
         )
         return {
-            "Authorization": f"Bearer {token}",
+            "User-Agent": f"{__agent__}/{__version__} {__source__}",
             "Content-Type": "application/json",
             "Accept": "application/json",
+            "Authorization": f"Bearer {token}",
         }
 
 
@@ -62,6 +63,7 @@ class REST:
         return f"https://{__host__}{path}"
 
     def get(self, path: str, params: dict = None, timeout: int = __timeout__) -> dict:
+        sleep(__limit__)
         response = self.session.get(
             self.url(path),
             headers=self.auth("GET", path, timeout),
@@ -72,6 +74,7 @@ class REST:
         return response.json()
 
     def post(self, path: str, data: dict = None, timeout: int = __timeout__) -> dict:
+        sleep(__limit__)
         response = self.session.post(
             self.url(path),
             headers=self.auth("POST", path, timeout),
