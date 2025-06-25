@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 from coinbot import logging
-from coinbot.model.database import ValueAveragingDatabase
+from coinbot.db import ValueAveragingDatabase
 from coinbot.model.dense import Trainer
 
 
