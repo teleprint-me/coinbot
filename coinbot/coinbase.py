@@ -379,4 +379,3 @@ def post_market_order(
 
     except RequestException as error:
         raise RequestException(f"Error posting market order: {error}")
-        raise RequestException(f"Error posting market order: {error}")
