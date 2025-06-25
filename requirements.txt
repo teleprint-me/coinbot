@@ -1,0 +1,30 @@
+# [tool.poetry.dependencies]
+pip
+requests
+numpy
+pandas
+matplotlib
+python-dotenv
+websocket-client
+click
+peewee
+iso8601
+h5py
+
+# [tool.poetry.group.dev.dependencies]
+pre_commit
+pyupgrade
+pynvim
+pytest
+pytest-mock
+black
+isort
+flake8
+build
+mkdocs
+mkdocstrings
+mkdocs-material
+
+# Only install if you need it
+# ipykernel # VSCode requires the kernel
+# jupyter
