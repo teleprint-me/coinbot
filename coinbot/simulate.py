@@ -7,8 +7,7 @@ from typing import Any, Dict, List
 import click
 
 from coinbot import logging
-from coinbot.api import alpaca
-from coinbot.value_average import ValueAveraging
+from coinbot.strategy.value_average import ValueAveraging
 
 
 @click.command()
