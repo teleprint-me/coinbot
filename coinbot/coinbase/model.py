@@ -71,6 +71,34 @@ class Order(Subscriber):
                 raise ValueError(f"Missing required parameter: {key}")
         return self.client.post("orders", data=params).json()
 
+    def get(self, order_id: str) -> dict:
+        """
+        Get a single order by ID.
+
+        Note: Params are deprecated and will be removed in future versions.
+
+        :param order_id: ID of the order to retrieve.
+        :return: Dictionary containing the order details.
+        """
+        return self.client.get(f"orders/historical/{order_id}", params=None).json()
+
+    def fills(self, params: Optional[dict] = None) -> dict:
+        """
+        Get a list of fills by optional query parameters (product_id, order_id, etc.)
+
+        :param params: Optional query parameters:
+                       - order_ids (list[str]): List of order IDs to filter fills by.
+                       - trade_ids (list[str]): List of trade IDs to filter fills by.
+                       - product_ids (list[str]): List of product IDs to filter fills by.
+                       - start_sequence_timestamp (RFC3339 Timestamp): Start timestamp for fills.
+                       - end_sequence_timestamp (RFC3339 Timestamp): End timestamp for fills.
+                       - limit (int): Maximum number of fills to return.
+                       - cursor (str): Cursor for pagination.
+                       - sort_by (str): Sort order (e.g., "price", "trade_time")
+        :return: Dictionary containing the fills details.
+        """
+        return self.client.get("orders/historical/fills", params=params).json()
+
 
 class Product(Subscriber):
     def best_bid_ask(self, product_ids: list[str]) -> dict:
