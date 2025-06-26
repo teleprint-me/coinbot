@@ -128,3 +128,10 @@ class Subscriber:
     # NOTE: error is left here as a convenience method for plugs
     def error(self, response: Response) -> bool:
         return 200 != response.status_code
+
+    def encode_params(self, params: dict, keys: list[str]) -> dict:
+        encoded = params.copy()
+        for key in keys:
+            if key in params and isinstance(params[key], list):
+                encoded[key] = ",".join(params[key])
+        return encoded
