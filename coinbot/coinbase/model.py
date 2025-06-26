@@ -21,12 +21,35 @@ class Account(Subscriber):
         return self.client.get(f"accounts/{account_uuid}").json()
 
 
+class Product(Subscriber):
+    def list(self):
+        return self.client.get("/products").json()
+
+    def get(self, product_id: str) -> dict:
+        return self.client.get(f"/products/{product_id}").json()
+
+    def book(self, product_id: str, data: dict = None) -> dict:
+        return self.client.get(f"/products/{product_id}/book", data).json()
+
+    def ticker(self, product_id: str) -> dict:
+        return self.client.get(f"/products/{product_id}/ticker").json()
+
+    def trades(self, product_id: str, data: dict = None) -> list:
+        return self.client.get(f"/products/{product_id}/trades", data).json()
+
+    def candles(self, product_id: str, data: dict = None) -> list:
+        return self.client.get(f"/products/{product_id}/candles", data).json()
+
+    def stats(self, product_id: str) -> dict:
+        return self.client.get(f"/products/{product_id}/stats").json()
+
+
 class CoinbaseAdvanced:
     def __init__(self, client: Client):
         self.client = client
         self.account = Account(client)
         # self.order = Order(client)
-        # self.product = Product(client)
+        self.product = Product(client)
         # Plug in more endpoints as you formalize them
 
     def __repr__(self) -> str:
