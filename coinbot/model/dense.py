@@ -1,6 +1,11 @@
 """
-coinbot/model/dense.py
+Copyright (C) 2023 - 2025 Austin Berrio
+@file coinbot.model.dense
+@brief A module for dense neural network models.
+@license AGPL
+@ref https://en.wikipedia.org/wiki/Feedforward_neural_network
 """
+
 from abc import ABC, abstractmethod
 
 import h5py
@@ -41,15 +46,15 @@ def regularized_rms(y_true, y_pred, weights, lambda_):
 
 class Layer(ABC):
     def __init__(self):
-        ...
+        pass
 
     @abstractmethod
     def forward(self, input_data):
-        ...
+        pass
 
     @abstractmethod
     def backward(self, output_gradient, learning_rate):
-        ...
+        pass
 
 
 class Dense(Layer):
