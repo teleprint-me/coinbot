@@ -20,9 +20,10 @@ coinbot/__init__.py
 "Compound interest is the eighth wonder of the world. He who understands it, earns it... he who doesn't... pays it."
     - Albert Einstein
 """
+
 import logging
 
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 __name__ = "coinbot"
 __agent__ = "teleprint-me/coinbot"
 __source__ = "https://github.com/teleprint-me/coinbot"
