@@ -33,20 +33,43 @@ class Account(Subscriber):
         return self.client.get(f"accounts/{account_uuid}").json()
 
 
+from coinbot.coinbase.client import Client, Subscriber
+
+
 class Order(Subscriber):
     def cancel(self, *, order_ids: list[str]) -> dict:
         """
         Cancel one or more orders by order IDs.
 
-        :param params: Query parameters:
-                       - order_ids (list[str]): List of order IDs to cancel (e.g. 0000-00000,1111-11111).
-        :return: Results with keys for success (bool), failure reason (str), and order IDs (list) if successful.
+        :param order_ids: List of order UUIDs to cancel.
+        :return: Dictionary containing success/failure details.
         """
         if not order_ids:
             raise ValueError("Must provide at least one order ID.")
         return self.client.post(
             "orders/batch_cancel", data={"order_ids": order_ids}
         ).json()
+
+    def create(self, params: dict) -> dict:
+        """
+        Create an order with a specified product_id (asset-pair), side (buy/sell), etc.
+
+        :param params: Dictionary containing order parameters:
+                       - client_order_id (str): Unique identifier for the order.
+                       - product_id (str): Asset-pair identifier (e.g., BTC-USD).
+                       - side (str): Side of the order (buy/sell).
+                       - order_configuration (dict): Configuration of the order (type, size, etc.)
+                         - market_market_ioc (dict): Market market IOC order configuration.
+                            - quote_size (str): Quote size for the order.
+                            - base_size (str): Base size for the order.
+                            - rfq_disabled (bool): Routed to CLOB exchange if True.
+                       - Reference docs for limit order details (See module docstring).
+        :return: Dictionary containing the created order details.
+        """
+        for key in ("client_order_id", "product_id", "side", "order_configuration"):
+            if key not in params:
+                raise ValueError(f"Missing required parameter: {key}")
+        return self.client.post("orders", data=params).json()
 
 
 class Product(Subscriber):
