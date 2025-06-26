@@ -98,6 +98,25 @@ class Client:
     def post(self, path: str, data=None) -> Response:
         return self._request("POST", path, data=data)
 
+    def paginate(self, path: str, key: str, params=None) -> Iterator[dict]:
+        seen = 0
+        params = params or {}
+        limit = params.get("limit", None)
+        while True:
+            response = self.get(path, params=params).json()
+            items = response.get(key, [])
+
+            for item in items:
+                yield item
+                seen += 1
+                if limit is not None and seen >= limit:
+                    return
+
+            if not response.get("has_next") or not response.get("cursor"):
+                break
+
+            params = {**params, "cursor": response.get("cursor")}
+
     def close(self) -> None:
         self.session.close()
 

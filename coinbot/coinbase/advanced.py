@@ -21,23 +21,7 @@ class Account(Subscriber):
             - cursor (str): The cursor for pagination.
         :return: A dictionary containing the list of accounts.
         """
-        seen = 0
-        limit = params.get("limit", None)
-        while True:
-            response = self.client.get("accounts", params=params).json()
-            accounts = response.get("accounts", [])
-
-            for account in accounts:
-                yield account
-                seen += 1
-                if limit is not None and seen >= limit:
-                    return
-
-            yield from response["accounts"]
-            if not response["has_next"] or not response["cursor"]:
-                break
-
-            params = {**params, "cursor": response["cursor"]}
+        return self.client.paginate("accounts", key="accounts", params=params)
 
     def get(self, account_uuid: str) -> dict:
         """
@@ -111,22 +95,9 @@ class Order(Subscriber):
             - sort_by (str): Sort key (e.g., "trade_time").
         :return: Dictionary containing list of fills.
         """
-        seen = 0
-        limit = params.get("limit") if params else None
-        while True:
-            response = self.client.get("orders/historical/fills", params=params).json()
-            orders = response.get("fills", [])
-
-            for order in orders:
-                yield order
-                seen += 1
-                if limit is not None and seen >= limit:
-                    return
-
-            if not response.get("has_next") or not response.get("cursor"):
-                break
-
-            params = {**params, "cursor": response["cursor"]}
+        return self.client.paginate(
+            "orders/historical/fills", key="fills", params=params
+        )
 
     def list(self, params: Optional[dict] = None) -> Iterator[dict]:
         """
@@ -146,22 +117,9 @@ class Order(Subscriber):
             - sort_by (str): Sort by (e.g. "limit_price", "last_fill_time").
         :return: Dictionary containing order data.
         """
-        seen = 0
-        limit = params.get("limit") if params else None
-        while True:
-            response = self.client.get("orders/historical/batch", params=params).json()
-            orders = response.get("orders", [])
-
-            for order in orders:
-                yield order
-                seen += 1
-                if limit is not None and seen >= limit:
-                    return
-
-            if not response.get("has_next") or not response.get("cursor"):
-                break
-
-            params = {**params, "cursor": response["cursor"]}
+        return self.client.paginate(
+            "orders/historical/batch", key="orders", params=params
+        )
 
 
 class Product(Subscriber):
