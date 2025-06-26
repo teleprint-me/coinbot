@@ -3,18 +3,14 @@ Copyright (C) 2021 - 2025 Austin Berrio
 @file coinbot.coinbase.model
 @brief A Python API Adapter for Coinbase Advanced
 @license AGPL
+@ref https://docs.cdp.coinbase.com/coinbase-app/trade/reference
 """
-
-from typing import Optional
 
 from coinbot.coinbase.client import Client, Subscriber
 
 
 class Account(Subscriber):
-    def list(self, limit: int = 10, cursor: Optional[str] = None) -> dict:
-        params = {"limit": limit}
-        if cursor:
-            params["cursor"] = cursor
+    def list(self, params: dict) -> dict:
         return self.client.get("accounts", params=params).json()
 
     def get(self, account_uuid: str) -> dict:
@@ -22,26 +18,29 @@ class Account(Subscriber):
 
 
 class Product(Subscriber):
-    def list(self):
-        return self.client.get("/products").json()
-
-    def get(self, product_id: str) -> dict:
-        return self.client.get(f"/products/{product_id}").json()
-
-    def book(self, product_id: str, data: dict = None) -> dict:
-        return self.client.get(f"/products/{product_id}/book", data).json()
+    def best_bid_ask(self, params: dict) -> dict:
+        return self.client.get(f"best_bid_ask", params=params).json()
 
     def ticker(self, product_id: str) -> dict:
-        return self.client.get(f"/products/{product_id}/ticker").json()
+        return self.client.get(f"products/{product_id}/ticker").json()
+
+    def list(self):
+        return self.client.get("products").json()
+
+    def get(self, product_id: str) -> dict:
+        return self.client.get(f"products/{product_id}").json()
+
+    def book(self, product_id: str, data: dict = None) -> dict:
+        return self.client.get(f"products/{product_id}/book", data).json()
 
     def trades(self, product_id: str, data: dict = None) -> list:
-        return self.client.get(f"/products/{product_id}/trades", data).json()
+        return self.client.get(f"products/{product_id}/trades", data).json()
 
     def candles(self, product_id: str, data: dict = None) -> list:
-        return self.client.get(f"/products/{product_id}/candles", data).json()
+        return self.client.get(f"products/{product_id}/candles", data).json()
 
     def stats(self, product_id: str) -> dict:
-        return self.client.get(f"/products/{product_id}/stats").json()
+        return self.client.get(f"products/{product_id}/stats").json()
 
 
 class CoinbaseAdvanced:
@@ -72,6 +71,7 @@ class CoinbaseAdvanced:
 
 
 if __name__ == "__main__":
+    import json
     import os
 
     from dotenv import load_dotenv
@@ -91,9 +91,9 @@ if __name__ == "__main__":
     client = Client(api, Auth(api))
     account = Account(client)
 
-    all_accounts = account.list()
-    print(all_accounts)
+    all_accounts = account.list({"limit": 5})
+    print(json.dumps(all_accounts, indent=2))
 
     first_uuid = all_accounts["accounts"][0]["uuid"]
     single_account = account.get(first_uuid)
-    print(single_account)
+    print(json.dumps(single_account, indent=2))
