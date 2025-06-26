@@ -1,6 +1,6 @@
 """
 Copyright (C) 2021 - 2025 Austin Berrio
-@file coinbot.coinbase.model
+@file coinbot.coinbase.advanced
 @brief A Python API Adapter for Coinbase Advanced
 @license AGPL
 @ref https://docs.cdp.coinbase.com/coinbase-app/trade/reference
