@@ -21,6 +21,33 @@ class Account(Subscriber):
         return self.client.get(f"accounts/{account_uuid}").json()
 
 
+class CoinbaseAdvanced:
+    def __init__(self, client: Client):
+        self.client = client
+        self.account = Account(client)
+        # self.order = Order(client)
+        # self.product = Product(client)
+        # Plug in more endpoints as you formalize them
+
+    def __repr__(self) -> str:
+        return f"CoinbaseAdvanced(key={self.key})"
+
+    def __str__(self) -> str:
+        return " ".join(word.capitalize() for word in self.name.split("_"))
+
+    @property
+    def key(self) -> str:
+        return self.client.auth.api.key
+
+    @property
+    def name(self):
+        return "coinbase_advanced"
+
+    def plug(self, cls: object, name: str):
+        instance = cls(self.client)
+        setattr(self, name, instance)
+
+
 if __name__ == "__main__":
     import os
 
