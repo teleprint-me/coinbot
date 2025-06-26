@@ -33,18 +33,36 @@ class Account(Subscriber):
         return self.client.get(f"accounts/{account_uuid}").json()
 
 
+class Order(Subscriber):
+    def cancel(self, *, order_ids: list[str]) -> dict:
+        """
+        Cancel one or more orders by order IDs.
+
+        :param params: Query parameters:
+                       - order_ids (list[str]): List of order IDs to cancel (e.g. 0000-00000,1111-11111).
+        :return: Results with keys for success (bool), failure reason (str), and order IDs (list) if successful.
+        """
+        if not order_ids:
+            raise ValueError("Must provide at least one order ID.")
+        return self.client.post(
+            "orders/batch_cancel", data={"order_ids": order_ids}
+        ).json()
+
+
 class Product(Subscriber):
-    def best_bid_ask(self, params: dict) -> dict:
+    def best_bid_ask(self, product_ids: list[str]) -> dict:
         """
         Retrieve best bid/ask for one or more products.
 
         :param params: Query parameters:
-                       - product_ids (str): Comma-separated list of product IDs (e.g., BTC-USD,ETH-USD).
+                       - product_ids (list[str]): List of product IDs (e.g., BTC-USD,ETH-USD).
         :return: Dictionary with best bid/ask prices keyed by product_id.
         """
-        if "product_ids" not in params:
-            raise ValueError("Missing required parameter: 'product_ids'")
-        return self.client.get("best_bid_ask", params=params).json()
+        if not product_ids:
+            raise ValueError("Must provide at least one product ID.")
+        return self.client.get(
+            "best_bid_ask", params={"product_ids": product_ids}
+        ).json()
 
     def ticker(self, product_id: str, params: dict) -> dict:
         """
@@ -109,7 +127,7 @@ class Product(Subscriber):
                        - limit (int): Max number of products to return.
                        - offset (int): Offset for pagination.
                        - product_type (str): Optional. (e.g., SPOT).
-                       - product_ids (str): Comma-separated list of product IDs (e.g., BTC-USD,ETH-USD).
+                       - product_ids (list[str]): List of product IDs (e.g., BTC-USD,ETH-USD).
                        - product_sort_order (str): asc or desc.
         :return: List of product metadata.
         """
@@ -120,9 +138,8 @@ class CoinbaseAdvanced:
     def __init__(self, client: Client):
         self.client = client
         self.account = Account(client)
-        # self.order = Order(client)
+        self.order = Order(client)
         self.product = Product(client)
-        # Plug in more endpoints as you formalize them
 
     def __repr__(self) -> str:
         return f"CoinbaseAdvanced(key={self.key})"
