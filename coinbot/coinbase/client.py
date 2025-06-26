@@ -1,6 +1,6 @@
 """
 Copyright (C) 2021 - 2025 Austin Berrio
-@file coinbot.coinbase.api
+@file coinbot.coinbase.client
 @brief A Python API Adapter for Coinbase Advanced
 @license AGPL
 """
