@@ -21,12 +21,22 @@ class Account(Subscriber):
             - cursor (str): The cursor for pagination.
         :return: A dictionary containing the list of accounts.
         """
+        seen = 0
+        limit = params.get("limit", None)
         while True:
             response = self.client.get("accounts", params=params).json()
-            print(json.dumps(response, indent=4))
+            accounts = response.get("accounts", [])
+
+            for account in accounts:
+                yield account
+                seen += 1
+                if limit is not None and seen >= limit:
+                    return
+
             yield from response["accounts"]
             if not response["has_next"] or not response["cursor"]:
                 break
+
             params = {**params, "cursor": response["cursor"]}
 
     def get(self, account_uuid: str) -> dict:
