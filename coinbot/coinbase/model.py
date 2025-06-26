@@ -57,9 +57,9 @@ class Order(Subscriber):
             - side (str): Side of the order (buy/sell).
             - order_configuration (dict): Configuration of the order (type, size, etc.)
                 - market_market_ioc (dict): Market market IOC order configuration.
-                - quote_size (str): Quote size for the order.
-                - base_size (str): Base size for the order.
-                - rfq_disabled (bool): Routed to CLOB exchange if True.
+                    - quote_size (str): Quote size for the order.
+                    - base_size (str): Base size for the order.
+                    - rfq_disabled (bool): Routed to CLOB exchange if True.
             - Reference docs for limit order details (See module docstring).
         :return: Dictionary containing the created order details.
         """
@@ -96,6 +96,26 @@ class Order(Subscriber):
         :return: Dictionary containing list of fills.
         """
         return self.client.get("orders/historical/fills", params=params).json()
+
+    def list(self, params: Optional[dict] = None) -> dict:
+        """
+        List all historical orders with optional filters.
+
+        :param params: Optional filters:
+            - order_ids (list[str]): Filter by specific order UUIDs.
+            - product_ids (list[str]): Filter by product pairs.
+            - product_type (str): Filter by order type (e.g "spot", "future").
+            - order_status (list[str]): Filter by order status.
+            - order_types (list[str]): Filter by order types (e.g. "market").
+            - order_side (str): Filter by order side (e.g. "buy", "sell").
+            - start_date (str): Start date (RFC 3339).
+            - end_date (str): End date (RFC 3339).
+            - limit (int): Maximum number of orders to return.
+            - cursor (str): Cursor for pagination.
+            - sort_by (str): Sort by (e.g. "limit_price", "last_fill_time").
+        :return: Dictionary containing order data.
+        """
+        return self.client.get("orders/historical/batch", params=params).json()
 
 
 class Product(Subscriber):
