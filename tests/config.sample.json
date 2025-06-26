@@ -1,0 +1,12 @@
+{
+  "strategy": "Value Averaging",
+  "symbol": "ETH/BTC",
+  "initial_principal": 0.05,
+  "annual_interest_rate": 0.05,
+  "compounding_frequency": 365,
+  "time_period": 1,
+  "interval": 7,
+  "current_interval": 1,
+  "market_price": 26247.5,
+  "current_value": 1406.06
+}
