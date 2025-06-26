@@ -98,21 +98,6 @@ class Client:
     def post(self, path: str, data=None) -> Response:
         return self._request("POST", path, data=data)
 
-    def paginate(self, path: str, params: Optional[dict] = None) -> Iterator[dict]:
-        """
-        Paginate through a list of resources.
-
-        :param path: The path to the resource.
-        :param params: Dictionary of parameters for pagination.
-        :return: An iterator yielding the resources.
-        """
-        while True:
-            resp = self.client.get(path, params=params).json()
-            yield from resp["results"]
-            if "cursor" not in resp or not resp["cursor"]:
-                break
-            params = {**params, "cursor": resp["cursor"]}
-
     def close(self) -> None:
         self.session.close()
 

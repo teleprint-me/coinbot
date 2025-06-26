@@ -6,13 +6,13 @@ Copyright (C) 2021 - 2025 Austin Berrio
 @ref https://docs.cdp.coinbase.com/coinbase-app/trade/reference
 """
 
-from typing import Optional
+from typing import Iterator, Optional
 
 from coinbot.coinbase.client import Client, Subscriber
 
 
 class Account(Subscriber):
-    def list(self, params: Optional[dict] = None) -> dict:
+    def list(self, params: Optional[dict] = None) -> Iterator[dict]:
         """
         List accounts with optional pagination parameters.
 
@@ -21,7 +21,13 @@ class Account(Subscriber):
             - cursor (str): The cursor for pagination.
         :return: A dictionary containing the list of accounts.
         """
-        return self.client.get("accounts", params=params).json()
+        while True:
+            response = self.client.get("accounts", params=params).json()
+            print(json.dumps(response, indent=4))
+            yield from response["accounts"]
+            if not response["has_next"] or not response["cursor"]:
+                break
+            params = {**params, "cursor": response["cursor"]}
 
     def get(self, account_uuid: str) -> dict:
         """
@@ -250,9 +256,5 @@ if __name__ == "__main__":
     client = Client(api, Auth(api))
     account = Account(client)
 
-    all_accounts = account.list({"limit": 5})
-    print(json.dumps(all_accounts, indent=2))
-
-    first_uuid = all_accounts["accounts"][0]["uuid"]
-    single_account = account.get(first_uuid)
-    print(json.dumps(single_account, indent=2))
+    for item in account.list({"limit": 5}):
+        print(json.dumps(item, indent=2))
