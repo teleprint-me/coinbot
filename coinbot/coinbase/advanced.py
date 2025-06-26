@@ -96,7 +96,7 @@ class Order(Subscriber):
         """
         return self.client.get(f"orders/historical/{order_id}").json()
 
-    def fills(self, params: Optional[dict] = None) -> dict:
+    def fills(self, params: Optional[dict] = None) -> Iterator[dict]:
         """
         Fetch historical fills with optional filters.
 
