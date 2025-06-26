@@ -3,6 +3,7 @@ Copyright (C) 2021 - 2025 Austin Berrio
 @file coinbot.coinbase.client
 @brief A Python API Adapter for Coinbase Advanced
 @license AGPL
+@ref https://docs.cdp.coinbase.com/api-v2/docs/authentication
 """
 
 import logging
