@@ -111,9 +111,24 @@ class Order(Subscriber):
             - sort_by (str): Sort key (e.g., "trade_time").
         :return: Dictionary containing list of fills.
         """
-        return self.client.get("orders/historical/fills", params=params).json()
+        seen = 0
+        limit = params.get("limit") if params else None
+        while True:
+            response = self.client.get("orders/historical/fills", params=params).json()
+            orders = response.get("fills", [])
 
-    def list(self, params: Optional[dict] = None) -> dict:
+            for order in orders:
+                yield order
+                seen += 1
+                if limit is not None and seen >= limit:
+                    return
+
+            if not response.get("has_next") or not response.get("cursor"):
+                break
+
+            params = {**params, "cursor": response["cursor"]}
+
+    def list(self, params: Optional[dict] = None) -> Iterator[dict]:
         """
         List all historical orders with optional filters.
 
@@ -131,7 +146,22 @@ class Order(Subscriber):
             - sort_by (str): Sort by (e.g. "limit_price", "last_fill_time").
         :return: Dictionary containing order data.
         """
-        return self.client.get("orders/historical/batch", params=params).json()
+        seen = 0
+        limit = params.get("limit") if params else None
+        while True:
+            response = self.client.get("orders/historical/batch", params=params).json()
+            orders = response.get("orders", [])
+
+            for order in orders:
+                yield order
+                seen += 1
+                if limit is not None and seen >= limit:
+                    return
+
+            if not response.get("has_next") or not response.get("cursor"):
+                break
+
+            params = {**params, "cursor": response["cursor"]}
 
 
 class Product(Subscriber):
@@ -264,7 +294,7 @@ if __name__ == "__main__":
     )
 
     client = Client(api, Auth(api))
-    account = Account(client)
+    advanced = CoinbaseAdvanced(client)
 
-    for item in account.list({"limit": 5}):
+    for item in advanced.order.fills({"limit": 5, "product_ids": ["BTC-USD"]}):
         print(json.dumps(item, indent=2))
