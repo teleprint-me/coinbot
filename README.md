@@ -87,11 +87,6 @@ python -m coinbot.coinbase
 
 ## 📜 License
 
-**CoinBot: Automated Trading with Compound Interest**
-
-Copyright © 2023
-Author: [Austin Berrio](https://teleprint.me)
-
 Licensed under the **GNU Affero General Public License (AGPL)**:
 
 * You are free to use, modify, and share under AGPL terms.
