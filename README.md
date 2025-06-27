@@ -1,4 +1,4 @@
-# CoinBot: AI-Powered Trading Model
+# CoinBot
 
 **Automated Trading with a Compound Interest Strategy**
 
